@@ -52,13 +52,11 @@ private:
     QByteArray file_src_cache;
     QString file_name_src;
     qint64 file_size_src,file_size_src_sended,file_size_src_to_send;
-    QDataStream *out;
 
     QFile *file_recv;
     QByteArray file_recv_cache;
     QString file_name_recv,head,file_name;
     qint64 file_size_recv, file_size_sended;
-    QDataStream *in;
     bool head_flag;
 };
 
