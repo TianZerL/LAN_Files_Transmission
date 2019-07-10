@@ -2,14 +2,6 @@
 <ui version="4.0">
  <class>MainWindow</class>
  <widget class="QMainWindow" name="MainWindow">
-  <property name="geometry">
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>400</width>
-    <height>412</height>
-   </rect>
-  </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
@@ -96,7 +88,7 @@
          <item row="0" column="0">
           <widget class="QLabel" name="port_lb">
            <property name="text">
-            <string>Port</string>
+            <string>Port   </string>
            </property>
           </widget>
          </item>
@@ -106,11 +98,11 @@
         </layout>
        </item>
        <item row="3" column="0">
-        <layout class="QGridLayout" name="gridLayout_5">
+        <layout class="QGridLayout" name="pro">
          <item row="0" column="0">
-          <widget class="QLabel" name="label">
+          <widget class="QLabel" name="pro_lb">
            <property name="text">
-            <string>Pro  </string>
+            <string>Pro    </string>
            </property>
           </widget>
          </item>
@@ -124,32 +116,32 @@
         </layout>
        </item>
        <item row="4" column="0">
-        <layout class="QGridLayout" name="gridLayout_3">
+        <layout class="QGridLayout" name="file_path">
+         <item row="0" column="1">
+          <widget class="QLineEdit" name="file_le"/>
+         </item>
          <item row="0" column="0">
           <widget class="QLabel" name="file_lb">
            <property name="text">
-            <string>File  </string>
+            <string>File   </string>
            </property>
           </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QLineEdit" name="file_le"/>
          </item>
         </layout>
        </item>
        <item row="5" column="0">
         <layout class="QGridLayout" name="gridLayout_4">
-         <item row="0" column="2">
-          <widget class="QPushButton" name="pick_pb">
-           <property name="text">
-            <string>Pick</string>
-           </property>
-          </widget>
-         </item>
          <item row="0" column="0">
           <widget class="QPushButton" name="send_pb">
            <property name="text">
             <string>Send</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <widget class="QPushButton" name="pick_pb">
+           <property name="text">
+            <string>Pick</string>
            </property>
           </widget>
          </item>
@@ -179,7 +171,7 @@
       <property name="frameShadow">
        <enum>QFrame::Raised</enum>
       </property>
-      <layout class="QGridLayout" name="gridLayout">
+      <layout class="QGridLayout" name="gridLayout_3">
        <item row="0" column="0">
         <widget class="QLabel" name="server_lb">
          <property name="text">
@@ -187,30 +179,85 @@
          </property>
         </widget>
        </item>
-       <item row="1" column="0">
-        <layout class="QGridLayout" name="server">
+       <item row="1" column="0" colspan="4">
+        <layout class="QGridLayout" name="gridLayout">
          <item row="0" column="0">
-          <layout class="QGridLayout" name="port_server">
-           <item row="0" column="0">
-            <widget class="QLabel" name="port_lb_server">
-             <property name="text">
-              <string>Port</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QLineEdit" name="port_le_server"/>
-           </item>
-          </layout>
-         </item>
-         <item row="1" column="0">
-          <widget class="QPushButton" name="pushButton">
+          <widget class="QLabel" name="port_lb_server">
            <property name="text">
-            <string>Listen</string>
+            <string>Port   </string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLineEdit" name="port_le_server"/>
+         </item>
+        </layout>
+       </item>
+       <item row="2" column="0" colspan="3">
+        <layout class="QGridLayout" name="file_path_server">
+         <item row="0" column="0">
+          <widget class="QLabel" name="file_lb_server">
+           <property name="text">
+            <string>File   </string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLineEdit" name="file_le_server"/>
+         </item>
+        </layout>
+       </item>
+       <item row="2" column="3">
+        <widget class="QPushButton" name="pick_pb_2">
+         <property name="text">
+          <string>Pick</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0" colspan="4">
+        <layout class="QGridLayout" name="pro_server">
+         <item row="0" column="0">
+          <widget class="QLabel" name="pro_lb_server">
+           <property name="text">
+            <string>Pro    </string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QProgressBar" name="process_server">
+           <property name="value">
+            <number>0</number>
            </property>
           </widget>
          </item>
         </layout>
+       </item>
+       <item row="4" column="0">
+        <widget class="QPushButton" name="listen_pb">
+         <property name="text">
+          <string>Listen</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1">
+        <spacer name="horizontalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>371</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="4" column="2" colspan="2">
+        <widget class="QPushButton" name="cancle_pb">
+         <property name="text">
+          <string>Cancle</string>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -222,8 +269,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>400</width>
-     <height>25</height>
+     <width>590</width>
+     <height>22</height>
     </rect>
    </property>
   </widget>
