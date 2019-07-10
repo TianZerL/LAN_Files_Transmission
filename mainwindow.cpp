@@ -3,6 +3,7 @@
 #include <QValidator>
 #include <QMessageBox>
 #include <QHostAddress>
+#include <QDebug>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -13,6 +14,8 @@ MainWindow::MainWindow(QWidget *parent) :
     currClient = nullptr;
     file_src = nullptr;
     file_recv = nullptr;
+    block_size = 4096;
+    head_flag=true;
 
     ui->ip1_le->setValidator(new QIntValidator(0,255,ui->ip1_le));
     ui->ip2_le->setValidator(new QIntValidator(0,255,ui->ip2_le));
@@ -33,6 +36,8 @@ MainWindow::~MainWindow()
 {
     delete file_src;
     delete file_recv;
+    delete in;
+    delete out;
     delete tcpClient;
     delete tcpServer;
     delete ui;
@@ -41,19 +46,34 @@ MainWindow::~MainWindow()
 void MainWindow::creat_Connection()
 {
     currClient=tcpServer->nextPendingConnection();
-    tcpCLient_List<<currClient;
+    in = new QDataStream(currClient);
+    //tcpCLient_List<<currClient;
     connect(currClient,SIGNAL(readyRead()),this,SLOT(read_Data()));  //读取准备
     connect(currClient,SIGNAL(disconnected()),this,SLOT(cls_Connection()));  //掉线处理
-    delete file_recv;
-    file_recv = new QFile("test_path_recv");
-    file_recv->open(QIODevice::WriteOnly);
 }
 
 void MainWindow::read_Data()
 {
-    //QDataStream in(currClient);//接收文件流
-    file_recv_cache = currClient->readAll();
-    file_recv->write(file_recv_cache);
+    if(head_flag)
+    {
+        *in>>head>>file_name>>file_size_sended;
+        delete file_recv;
+        file_recv = new QFile(file_name+"_recv");
+        file_size_recv=file_size_sended;
+        file_recv->open(QIODevice::WriteOnly);
+        head_flag=false;
+    }
+    if(file_size_recv >0 && !head_flag )
+    {
+        file_recv_cache=currClient->readAll();
+        file_size_recv-=file_recv->write(file_recv_cache);
+    }
+    if(file_size_recv==0)
+    {
+        QMessageBox::information(this,"1","1");
+        file_recv->close();
+        currClient->close();
+    }
 }
 
 void MainWindow::cls_Connection()
@@ -63,12 +83,16 @@ void MainWindow::cls_Connection()
 
 void MainWindow::start_send_Data()
 {
-    //QDataStream out(&file_src_cache,QIODevice::WriteOnly);//发送文件流
+    out = new QDataStream(&file_src_cache,QIODevice::WriteOnly);//发送文件流
+
     delete file_src;
     file_src = new QFile("test_path_src");
+
     file_src->open(QIODevice::ReadOnly);
     file_size_src_to_send = file_size_src = file_src->size();
-    file_src_cache = file_src->read(qMin(file_size_src,qint64(4096)));
+    out->setVersion(QDataStream::Qt_5_13);
+
+    *out<<QString("##head##")<<file_src->fileName()<<file_size_src;//<<file_src->read(qMin(file_size_src,block_size));
     tcpClient->write(file_src_cache);
     file_src_cache.resize(0);
 }
@@ -78,7 +102,7 @@ void MainWindow::continue_send_Data(qint64 size_of_bytes)
     file_size_src_sended += size_of_bytes;
     if(file_size_src_to_send>0)
     {
-        file_src_cache = file_src->read(qMin(file_size_src,qint64(4096)));
+        file_src_cache=file_src->read(qMin(file_size_src,block_size));
         file_size_src_to_send -= size_of_bytes;
         tcpClient->write(file_src_cache);
         file_src_cache.resize(0);
