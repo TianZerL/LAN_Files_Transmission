@@ -19,11 +19,9 @@ MainWindow::MainWindow(QWidget *parent) :
     blockSize = 4096;
     isHead=true;
     //限制输入类型
-    ui->ip1_le->setValidator(new QIntValidator(0,255,ui->ip1_le));
-    ui->ip2_le->setValidator(new QIntValidator(0,255,ui->ip2_le));
-    ui->ip3_le->setValidator(new QIntValidator(0,255,ui->ip3_le));
-    ui->ip4_le->setValidator(new QIntValidator(0,254,ui->ip4_le));
-    ui->port_le->setValidator(new QIntValidator(0,65535,ui->port_le));
+    ui->ip_le->setValidator(new QRegExpValidator(QRegExp("^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-4]|2[0-4][0-9]|[01]?[0-9][0-9]?)&"),ui->ip_le));
+    ui->port_le->setValidator(new QRegExpValidator(QRegExp("^(?:[0-9]|[1-9]\\d|[1-9]\\d{2}|[1-9]\\d{3}|[1-5]\\d{4}|6[0-4]\\d{3}|65[0-4]\\d{2}|655[0-2]\\d|6553[0-5])$"),ui->port_le));
+    ui->port_le_server->setValidator(new QRegExpValidator(QRegExp("^(?:[0-9]|[1-9]\\d|[1-9]\\d{2}|[1-9]\\d{3}|[1-5]\\d{4}|6[0-4]\\d{3}|65[0-4]\\d{2}|655[0-2]\\d|6553[0-5])$"),ui->port_le_server));
     ui->port_le_server->setValidator(new QIntValidator(0,65535,ui->port_le_server));
     ui->cancle_pb->setEnabled(false);
     //初始化tcp服务端和客户端
@@ -176,7 +174,7 @@ void MainWindow::on_cancle_pb_clicked()
 void MainWindow::on_send_pb_clicked()
 {
     //联接
-    tcpClient->connectToHost(ui->ip1_le->text()+"."+ui->ip2_le->text()+"."+ui->ip3_le->text()+"."+ui->ip4_le->text(),ui->port_le->text().toUShort());
+    tcpClient->connectToHost(ui->ip_le->text(),ui->port_le->text().toUShort());
 }
 //文件以及目录选择
 void MainWindow::on_pick_pb_clicked()
