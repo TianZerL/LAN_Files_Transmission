@@ -72,7 +72,7 @@ void MainWindow::read_Data()
         recv_fileCache=currClient->readAll();
         remaining_fileSize-=recvFile->write(recv_fileCache);
         recvFile->flush();
-        ui->process_server->setValue(int((1-double(remaining_fileSize)/double(recv_fileSize)))*100);
+        ui->process_server->setValue(int((1.0-(double(remaining_fileSize)/double(recv_fileSize)))*100));
     }
     if(remaining_fileSize <= 0)
     {
