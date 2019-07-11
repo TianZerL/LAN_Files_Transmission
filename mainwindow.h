@@ -42,22 +42,23 @@ private:
 private:
     Ui::MainWindow *ui;
     QTcpSocket *tcpClient;
-    QList<QTcpSocket *> tcpCLient_List;
+    //QList<QTcpSocket *> tcpCLient_List;
     QTcpSocket *currClient;
     QTcpServer *tcpServer;
 
-    qint64 block_size;
+    qint64 blockSize;  //单次发送数据大小
+    qint64 diskCacheSize;
 
-    QFile *file_src;
-    QByteArray file_src_cache;
-    QString file_name_src;
-    qint64 file_size_src,file_size_src_sended,file_size_src_to_send;
+    QFile *srcFile;
+    QByteArray src_fileCache;
+    QString src_fileName;
+    qint64 src_fileSize,sended_fileSize,tosend_fileSize;
 
-    QFile *file_recv;
-    QByteArray file_recv_cache;
-    QString file_name_recv,head,file_name;
-    qint64 file_size_recv, file_size_sended;
-    bool head_flag;
+    QFile *recvFile;
+    QByteArray recv_fileCache;
+    QString headInfo,recv_fileName;
+    qint64 recv_fileSize, remaining_fileSize;
+    bool isHead;
 };
 
 #endif // MAINWINDOW_H
