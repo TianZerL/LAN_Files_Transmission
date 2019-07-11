@@ -66,14 +66,14 @@ void MainWindow::read_Data()
         recvFile->open(QIODevice::WriteOnly);
         isHead=false;
     }
-    if(recv_fileSize >0 && !isHead )
+    if(remaining_fileSize >0 && !isHead )
     {
         recv_fileCache=currClient->readAll();
         remaining_fileSize-=recvFile->write(recv_fileCache);
         recvFile->flush();
         ui->process_server->setValue(int(1-double(remaining_fileSize)/double(recv_fileSize)));
     }
-    if(recv_fileSize <= 0)
+    if(remaining_fileSize <= 0)
     {
         QMessageBox::information(this,"Notice","Finished");
         recvFile->close();
@@ -100,7 +100,7 @@ void MainWindow::start_send_Data()
     out<<QString("##head##")<<srcFile->fileName()<<src_fileSize;
     //发送文件头数据
     tcpClient->write(src_fileCache);
-
+    ui->process->setValue(0);
     src_fileCache.resize(0);
 }
 
@@ -119,6 +119,7 @@ void MainWindow::continue_send_Data(qint64 size_of_bytes)
     if(tosend_fileSize<=0)
     {
         QMessageBox::information(this,"Notice","Successful!");
+        ui->process->setValue(0);
         srcFile->close();   //关闭源文件
         tcpClient->close(); //关闭tcp客户端
     }
