@@ -2,6 +2,14 @@
 <ui version="4.0">
  <class>MainWindow</class>
  <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>587</width>
+    <height>392</height>
+   </rect>
+  </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
@@ -117,13 +125,20 @@
        </item>
        <item row="4" column="0">
         <layout class="QGridLayout" name="file_path">
-         <item row="0" column="1">
-          <widget class="QLineEdit" name="file_le"/>
-         </item>
          <item row="0" column="0">
           <widget class="QLabel" name="file_lb">
            <property name="text">
             <string>File   </string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLineEdit" name="file_le"/>
+         </item>
+         <item row="0" column="2">
+          <widget class="QPushButton" name="pick_pb">
+           <property name="text">
+            <string>Pick</string>
            </property>
           </widget>
          </item>
@@ -135,13 +150,6 @@
           <widget class="QPushButton" name="send_pb">
            <property name="text">
             <string>Send</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="2">
-          <widget class="QPushButton" name="pick_pb">
-           <property name="text">
-            <string>Pick</string>
            </property>
           </widget>
          </item>
@@ -157,6 +165,13 @@
             </size>
            </property>
           </spacer>
+         </item>
+         <item row="0" column="2">
+          <widget class="QPushButton" name="sycn_pb">
+           <property name="text">
+            <string>Sync</string>
+           </property>
+          </widget>
          </item>
         </layout>
        </item>
@@ -192,27 +207,6 @@
           <widget class="QLineEdit" name="port_le_server"/>
          </item>
         </layout>
-       </item>
-       <item row="2" column="0" colspan="3">
-        <layout class="QGridLayout" name="file_path_server">
-         <item row="0" column="0">
-          <widget class="QLabel" name="file_lb_server">
-           <property name="text">
-            <string>File   </string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QLineEdit" name="file_le_server"/>
-         </item>
-        </layout>
-       </item>
-       <item row="2" column="3">
-        <widget class="QPushButton" name="pick_pb_2">
-         <property name="text">
-          <string>Pick</string>
-         </property>
-        </widget>
        </item>
        <item row="3" column="0" colspan="4">
         <layout class="QGridLayout" name="pro_server">
@@ -259,6 +253,27 @@
          </property>
         </widget>
        </item>
+       <item row="2" column="0" colspan="4">
+        <layout class="QGridLayout" name="file_path_server">
+         <item row="0" column="0">
+          <widget class="QLabel" name="path_lb_server">
+           <property name="text">
+            <string>path   </string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLineEdit" name="path_le_server"/>
+         </item>
+         <item row="0" column="2">
+          <widget class="QPushButton" name="pick_pb_server">
+           <property name="text">
+            <string>Pick</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
       </layout>
      </widget>
     </item>
@@ -269,7 +284,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>590</width>
+     <width>587</width>
      <height>22</height>
     </rect>
    </property>
@@ -285,7 +300,6 @@
   <tabstop>port_le</tabstop>
   <tabstop>file_le</tabstop>
   <tabstop>send_pb</tabstop>
-  <tabstop>pick_pb</tabstop>
  </tabstops>
  <resources/>
  <connections/>

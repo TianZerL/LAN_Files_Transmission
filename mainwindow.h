@@ -6,6 +6,7 @@
 #include <QTcpServer>
 #include <QFile>
 #include <QByteArray>
+#include <QFileDialog>
 
 namespace Ui {
 class MainWindow;
@@ -24,7 +25,9 @@ private slots:
 
     void read_Data();
 
-    void cls_Connection();
+    void cls_currConnection();
+
+    void connection_Error();
 
     void start_send_Data();
 
@@ -36,8 +39,11 @@ private slots:
 
     void on_send_pb_clicked();
 
-private:
+    void on_pick_pb_clicked();
 
+    void on_pick_pb_server_clicked();
+
+private:
 
 private:
     Ui::MainWindow *ui;
@@ -50,11 +56,13 @@ private:
     qint64 diskCacheSize;
 
     QFile *srcFile;
+    QFileInfo srcFileInfo;
     QByteArray src_fileCache;
     QString src_fileName;
     qint64 src_fileSize,sended_fileSize,tosend_fileSize;
 
     QFile *recvFile;
+    QDir recvPath;
     QByteArray recv_fileCache;
     QString headInfo,recv_fileName;
     qint64 recv_fileSize, remaining_fileSize;
