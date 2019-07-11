@@ -7,6 +7,7 @@
 #include <QFile>
 #include <QByteArray>
 #include <QFileDialog>
+#include "config.h"
 
 namespace Ui {
 class MainWindow;
@@ -67,6 +68,8 @@ private:
     QString headInfo,recv_fileName;
     qint64 recv_fileSize, remaining_fileSize;
     bool isHead;
+
+    Config config;
 };
 
 #endif // MAINWINDOW_H

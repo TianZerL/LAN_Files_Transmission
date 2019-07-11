@@ -15,8 +15,6 @@ MainWindow::MainWindow(QWidget *parent) :
     currClient = nullptr;
     srcFile = nullptr;
     recvFile = nullptr;
-
-    blockSize = 4096;
     isHead=true;
     //限制输入类型
     ui->ip_le->setValidator(new QRegExpValidator(QRegExp("^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-4]|2[0-4][0-9]|[01]?[0-9][0-9]?)&"),ui->ip_le));
@@ -33,6 +31,11 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(tcpClient,SIGNAL(error(QAbstractSocket::SocketError)),this,SLOT(connection_Error()));
     connect(tcpServer,SIGNAL(newConnection()),this,SLOT(creat_Connection()));   //连接请求处理
 
+    ui->port_le->setText(config.defaultPort);
+    ui->port_le_server->setText(config.defaultPort);
+    ui->path_le_server->setText(config.defaultRecvPath);
+    blockSize=config.diskCacheSize;
+    qDebug()<<blockSize;
 }
 
 MainWindow::~MainWindow()
@@ -57,8 +60,10 @@ void MainWindow::read_Data()
     {
         QDataStream in(currClient);
         in >> headInfo >> recv_fileName >> recv_fileSize;
-
-        recvFile = new QFile(recvPath.path()+"/"+recv_fileName);
+        recvPath.setPath(ui->path_le_server->text());
+        if(!recvPath.exists())
+            recvPath.mkpath(recvPath.path());
+        recvFile = new QFile(ui->path_le_server->text()+"/"+recv_fileName);
         if(!recvFile->open(QIODevice::WriteOnly))
         {
             QMessageBox::critical(this,tr("Critical"),tr("Faild to create file"));
@@ -187,6 +192,5 @@ void MainWindow::on_pick_pb_clicked()
 void MainWindow::on_pick_pb_server_clicked()
 {
     //选取接收目录
-    recvPath=QDir(QFileDialog::getExistingDirectory());
-    ui->path_le_server->setText(recvPath.path());
+    ui->path_le_server->setText(QFileDialog::getExistingDirectory());
 }
