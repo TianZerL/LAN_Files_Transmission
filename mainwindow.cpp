@@ -60,7 +60,6 @@ void MainWindow::read_Data()
         QDataStream in(currClient);
         in >> headInfo >> recv_fileName >> recv_fileSize;
 
-
         recvFile = new QFile(recvPath.path()+"/"+recv_fileName);
         if(!recvFile->open(QIODevice::WriteOnly))
         {
@@ -128,7 +127,8 @@ void MainWindow::start_send_Data()
     out<<QString("##head##")<<srcFileInfo.fileName()<<src_fileSize;
     //发送文件头数据
     tcpClient->write(src_fileCache);
-    //ui->process->setValue(0);
+    ui->process->setValue(0);
+    //初始化已发送文件大小，减去文件头大小
     sended_fileSize = -src_fileCache.size();
     src_fileCache.resize(0);
 
@@ -136,21 +136,20 @@ void MainWindow::start_send_Data()
 
 void MainWindow::continue_send_Data(qint64 size_of_bytes)
 {
+    //已发送文件大小
     sended_fileSize += size_of_bytes;
     if(tosend_fileSize>0)
     {
-        src_fileCache=srcFile->read(qMin(tosend_fileSize,blockSize));
+        src_fileCache=srcFile->read(qMin(tosend_fileSize,blockSize));        //将数据块写入缓存
         tosend_fileSize -= size_of_bytes;
         tcpClient->write(src_fileCache);
         src_fileCache.resize(0);
-        qDebug()<<sended_fileSize<<"___"<<int(double(sended_fileSize)*100/double(src_fileSize))<<endl;
-        ui->process->setValue(int(double(sended_fileSize)*100/double(src_fileSize)));//设置进度条
+        ui->process->setValue(int(double(sended_fileSize)*100/double(src_fileSize)));   //设置进度条
     }
 
     if(tosend_fileSize<=0)
     {
         ui->process->setValue(0);//重置进度条
-        tcpClient->write("##done##");
         srcFile->close();   //关闭源文件
         tcpClient->close(); //关闭tcp客户端
         delete srcFile; //delete防止内存泄漏
