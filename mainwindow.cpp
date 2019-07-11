@@ -32,8 +32,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(tcpClient,SIGNAL(connected()),this,SLOT(start_send_Data()));
     connect(tcpClient,SIGNAL(bytesWritten(qint64)),this,SLOT(continue_send_Data(qint64)));
     connect(tcpServer,SIGNAL(newConnection()),this,SLOT(creat_Connection()));   //连接请求处理
-    connect(currClient,SIGNAL(readyRead()),this,SLOT(read_Data()));  //读取准备
-    connect(currClient,SIGNAL(disconnected()),this,SLOT(cls_Connection()));  //掉线处理
+
 }
 
 MainWindow::~MainWindow()
@@ -49,6 +48,8 @@ void MainWindow::creat_Connection()
 {
     currClient=tcpServer->nextPendingConnection();
     //tcpCLient_List<<currClient;
+    connect(currClient,SIGNAL(readyRead()),this,SLOT(read_Data()));  //读取准备
+    connect(currClient,SIGNAL(disconnected()),this,SLOT(cls_Connection()));  //掉线处理
 
 }
 
@@ -62,7 +63,7 @@ void MainWindow::read_Data()
         delete recvFile;
         recvFile = new QFile(recv_fileName+"_recv");
 
-        remaining_fileSize = recv_fileSize ;
+        remaining_fileSize = recv_fileSize;
         recvFile->open(QIODevice::WriteOnly);
         isHead=false;
     }
@@ -71,7 +72,7 @@ void MainWindow::read_Data()
         recv_fileCache=currClient->readAll();
         remaining_fileSize-=recvFile->write(recv_fileCache);
         recvFile->flush();
-        ui->process_server->setValue(int(1-double(remaining_fileSize)/double(recv_fileSize)));
+        ui->process_server->setValue(int((1-double(remaining_fileSize)/double(recv_fileSize)))*100);
     }
     if(remaining_fileSize <= 0)
     {
