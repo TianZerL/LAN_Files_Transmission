@@ -151,6 +151,13 @@ void MainWindow::start_send_Data()
     out<<QString("##head##")<<srcFileInfo.fileName()<<src_fileSize;
     //发送文件头数据
     tcpClient->write(src_fileCache);
+    if((tcpClient->waitForDisconnected(100000)))
+    {
+        QMessageBox::warning(this,tr("Client"),tr("Sever refues receive file"));
+        srcFile->close();
+        tcpClient->close();
+        return;
+    }
     ui->process->setValue(0);
     //初始化已发送文件大小，减去文件头大小
     sended_fileSize = -src_fileCache.size();
@@ -184,9 +191,18 @@ void MainWindow::continue_send_Data(qint64 size_of_bytes)
 
 void MainWindow::on_listen_pb_clicked()
 {
+    if(ui->port_le_server->text().toInt()<1025)
+    {
+        QMessageBox::warning(this,tr("Server"),tr("Faild to listen port"));
+        return;
+    }
+    if(!tcpServer->listen(QHostAddress::Any,ui->port_le_server->text().toUShort())) //开始监听
+    {
+        QMessageBox::warning(this,tr("Server"),tr("Faild to listen port"));
+        return;
+    }
     ui->listen_pb->setEnabled(false);   //设置listen按钮不可用
     ui->cancle_pb->setEnabled(true);    //设置cancle按钮可用
-    tcpServer->listen(QHostAddress::Any,ui->port_le_server->text().toUShort()); //开始监听
 
 }
 
@@ -205,6 +221,8 @@ void MainWindow::on_send_pb_clicked()
         return;
     }
     tcpClient->connectToHost(ui->ip_le->text(),ui->port_le->text().toUShort());    //连接到服务器
+    if(!tcpClient->waitForConnected())
+        QMessageBox::warning(this,tr("Client"),tr("Faild to connect to server"));
 }
 //文件以及目录选择
 void MainWindow::on_pick_pb_clicked()
