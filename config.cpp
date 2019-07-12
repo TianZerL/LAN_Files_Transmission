@@ -6,7 +6,7 @@ Config::Config(QObject *parent) : QObject(parent),config("config.json")
 
     if(!config.exists())
     {
-        configJSON.insert("default_receive_path",QDir::currentPath()+"receive");
+        configJSON.insert("default_receive_path",QDir::currentPath()+"/receive");
         configJSON.insert("default_port","6868");
         configJSON.insert("disk_cache_size",4096);
         if(!config.open(QIODevice::WriteOnly))

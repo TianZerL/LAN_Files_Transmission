@@ -16,11 +16,10 @@ MainWindow::MainWindow(QWidget *parent) :
     srcFile = nullptr;
     recvFile = nullptr;
     isHead=true;
-    //限制输入类型
+    //限制输入类型，利用正则表达式
     ui->ip_le->setValidator(new QRegExpValidator(QRegExp("^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-4]|2[0-4][0-9]|[01]?[0-9][0-9]?)&"),ui->ip_le));
     ui->port_le->setValidator(new QRegExpValidator(QRegExp("^(?:[0-9]|[1-9]\\d|[1-9]\\d{2}|[1-9]\\d{3}|[1-5]\\d{4}|6[0-4]\\d{3}|65[0-4]\\d{2}|655[0-2]\\d|6553[0-5])$"),ui->port_le));
     ui->port_le_server->setValidator(new QRegExpValidator(QRegExp("^(?:[0-9]|[1-9]\\d|[1-9]\\d{2}|[1-9]\\d{3}|[1-5]\\d{4}|6[0-4]\\d{3}|65[0-4]\\d{2}|655[0-2]\\d|6553[0-5])$"),ui->port_le_server));
-    ui->port_le_server->setValidator(new QIntValidator(0,65535,ui->port_le_server));
     ui->cancle_pb->setEnabled(false);
     //初始化tcp服务端和客户端
     tcpClient = new QTcpSocket(this);
@@ -28,14 +27,14 @@ MainWindow::MainWindow(QWidget *parent) :
     //链接信号与槽
     connect(tcpClient,SIGNAL(connected()),this,SLOT(start_send_Data()));
     connect(tcpClient,SIGNAL(bytesWritten(qint64)),this,SLOT(continue_send_Data(qint64)));
-    connect(tcpClient,SIGNAL(error(QAbstractSocket::SocketError)),this,SLOT(connection_Error()));
+    connect(tcpClient,SIGNAL(error(QAbstractSocket::SocketError)),this,SLOT(client_Error()));
     connect(tcpServer,SIGNAL(newConnection()),this,SLOT(creat_Connection()));   //连接请求处理
+    connect(tcpServer,SIGNAL(acceptError(QAbstractSocket::SocketError)),this,SLOT(server_connection_Error()));
 
     ui->port_le->setText(config.defaultPort);
     ui->port_le_server->setText(config.defaultPort);
     ui->path_le_server->setText(config.defaultRecvPath);
     blockSize=config.diskCacheSize;
-    qDebug()<<blockSize;
 }
 
 MainWindow::~MainWindow()
@@ -48,9 +47,11 @@ MainWindow::~MainWindow()
 void MainWindow::creat_Connection()
 {
     currClient=tcpServer->nextPendingConnection();
+    //QMessageBox::information(this,"Notcie","A new connection form");
     //tcpCLient_List<<currClient;
     connect(currClient,SIGNAL(readyRead()),this,SLOT(read_Data()));  //读取准备
     connect(currClient,SIGNAL(disconnected()),this,SLOT(cls_currConnection()));  //掉线处理
+    connect(currClient,SIGNAL(error(QAbstractSocket::SocketError)),this,SLOT(server_Error()));
 
 }
 
@@ -60,13 +61,18 @@ void MainWindow::read_Data()
     {
         QDataStream in(currClient);
         in >> headInfo >> recv_fileName >> recv_fileSize;
+        if(QMessageBox::information(this,tr("Server"),"from: "+currClient->peerAddress().toString().mid(7)+"\nFile name: "+recv_fileName+"\nFile size: "+QString::number(recv_fileSize/1000000.0)+"mb",QMessageBox::Yes | QMessageBox::No,QMessageBox::No)==QMessageBox::No)
+        {
+            currClient->close();
+            return;
+        }
         recvPath.setPath(ui->path_le_server->text());
         if(!recvPath.exists())
             recvPath.mkpath(recvPath.path());
         recvFile = new QFile(ui->path_le_server->text()+"/"+recv_fileName);
         if(!recvFile->open(QIODevice::WriteOnly))
         {
-            QMessageBox::critical(this,tr("Critical"),tr("Faild to create file"));
+            QMessageBox::critical(this,tr("Server"),tr("Faild to create file"));
             currClient->close();
             delete recvFile;
             isHead=true;
@@ -91,34 +97,49 @@ void MainWindow::read_Data()
         currClient->close();
         delete recvFile;
         isHead=true;
-        QMessageBox::information(this,tr("Notice"),("Finished"));
+        QMessageBox::information(this,tr("Server"),("Finished"));
     }
 }
 
 void MainWindow::cls_currConnection()
 {
-    if(!recvFile->isOpen())
+    if(!recvFile||(recvFile&&!recvFile->isOpen()))
         return;
-    QMessageBox::information(this,tr("Notice"),tr("Connection have been closed."));
+    QMessageBox::information(this,tr("Server"),tr("Connection have been closed."));
     currClient->close();
     recvFile->close();
     ui->process_server->setValue(0);
 }
 
-void MainWindow::connection_Error()
+void MainWindow::client_Error()
 {
-    QMessageBox::warning(this,"Warning",tcpClient->errorString());
+    QMessageBox::warning(this,tr("Client"),tcpClient->errorString());
+    if(tcpClient->isOpen())
+        tcpClient->close();
+}
+
+void MainWindow::server_Error()
+{
+    QMessageBox::warning(this,tr("Server"),currClient->errorString());
+    if(currClient->isOpen())
+        currClient->close();
+}
+
+void MainWindow::server_connection_Error()
+{
+    QMessageBox::warning(this,tr("Server"),tcpServer->errorString());
 }
 
 void MainWindow::start_send_Data()
 {
+    //关闭发送按钮
+    ui->send_pb->setEnabled(false);
     QDataStream out(&src_fileCache,QIODevice::WriteOnly);//发送文件流
     //准备发送的文件
-
     srcFile = new QFile(srcFileInfo.absoluteFilePath());
     if(!srcFile->open(QIODevice::ReadOnly))
     {
-        QMessageBox::critical(this,tr("Critical"),tr("Faild to open file"));
+        QMessageBox::critical(this,tr("Client"),tr("Faild to open file"));
         tcpClient->close(); //关闭tcp客户端
         delete srcFile; //delete防止内存泄漏
         return;
@@ -134,7 +155,6 @@ void MainWindow::start_send_Data()
     //初始化已发送文件大小，减去文件头大小
     sended_fileSize = -src_fileCache.size();
     src_fileCache.resize(0);
-
 }
 
 void MainWindow::continue_send_Data(qint64 size_of_bytes)
@@ -156,7 +176,8 @@ void MainWindow::continue_send_Data(qint64 size_of_bytes)
         srcFile->close();   //关闭源文件
         tcpClient->close(); //关闭tcp客户端
         delete srcFile; //delete防止内存泄漏
-        QMessageBox::information(this,tr("Notice"),tr("Successful!"));
+        QMessageBox::information(this,tr("Client"),tr("Successful!"));
+        ui->send_pb->setEnabled(true);
     }
 
 }
@@ -178,8 +199,12 @@ void MainWindow::on_cancle_pb_clicked()
 
 void MainWindow::on_send_pb_clicked()
 {
-    //联接
-    tcpClient->connectToHost(ui->ip_le->text(),ui->port_le->text().toUShort());
+    if(ui->file_le->text().isEmpty())
+    {
+        QMessageBox::warning(this,tr("Client"),tr("File path can not be empty!"));
+        return;
+    }
+    tcpClient->connectToHost(ui->ip_le->text(),ui->port_le->text().toUShort());    //连接到服务器
 }
 //文件以及目录选择
 void MainWindow::on_pick_pb_clicked()

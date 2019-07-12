@@ -28,7 +28,11 @@ private slots:
 
     void cls_currConnection();
 
-    void connection_Error();
+    void client_Error();
+
+    void server_Error();
+
+    void server_connection_Error();
 
     void start_send_Data();
 
