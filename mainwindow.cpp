@@ -28,7 +28,6 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(tcpClient,SIGNAL(connected()),this,SLOT(send_Head()));
     connect(this,SIGNAL(waitForConfirm(qint64)),this,SLOT(confirm_Head(qint64)));
     connect(this,SIGNAL(readyForSendData()),this,SLOT(start_send_Data()));
-    //connect(tcpClient,SIGNAL(bytesWritten(qint64)),this,SLOT(continue_send_Data(qint64)));
     connect(tcpClient,SIGNAL(error(QAbstractSocket::SocketError)),this,SLOT(client_Error()));
     connect(tcpServer,SIGNAL(newConnection()),this,SLOT(creat_Connection()));   //连接请求处理
     connect(tcpServer,SIGNAL(acceptError(QAbstractSocket::SocketError)),this,SLOT(server_connection_Error()));
@@ -49,7 +48,6 @@ MainWindow::~MainWindow()
 void MainWindow::creat_Connection()
 {
     currClient=tcpServer->nextPendingConnection();
-    //QMessageBox::information(this,"Notcie","A new connection form");
     //tcpCLient_List<<currClient;
     connect(currClient,SIGNAL(readyRead()),this,SLOT(read_Data()));  //读取准备
     connect(currClient,SIGNAL(disconnected()),this,SLOT(cls_currConnection()));  //掉线处理
@@ -63,7 +61,7 @@ void MainWindow::read_Data()
     {
         QDataStream in(currClient);
         in >> headInfo >> recv_fileName >> recv_fileSize;
-        if(QMessageBox::information(this,tr("Server"),"from: "+currClient->peerAddress().toString().mid(7)+"\nFile name: "+recv_fileName+"\nFile size: "+QString::number(recv_fileSize/1000000.0)+"mb",QMessageBox::Yes | QMessageBox::No,QMessageBox::No)==QMessageBox::No)
+        if(QMessageBox::information(this,tr("Server"),"from: "+currClient->peerAddress().toString().mid(7)+"\nFile name: "+recv_fileName+"\nFile size: "+QString::number(recv_fileSize/1000000.0)+"mb",QMessageBox::Yes | QMessageBox::No,QMessageBox::No) == QMessageBox::No)
         {
             currClient->write("##refused##");
             currClient->close();
@@ -166,10 +164,9 @@ void MainWindow::send_Head()
 
 void MainWindow::confirm_Head(qint64 headSize)
 {
-    if(tcpClient->waitForReadyRead(10000))
+    if(tcpClient->waitForReadyRead())
     {
-        QApplication::processEvents();
-        if(QString(tcpClient->readAll())=="##refused##")
+        if((tcpClient->readAll()=="##refused##"))
         {
             QMessageBox::warning(this,tr("Client"),tr("Sever refues receive file"));
             srcFile->close();
