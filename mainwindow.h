@@ -23,6 +23,7 @@ public:
 
 signals:
     void readyForSendData();
+    void waitForConfirm(qint64);
 
 private slots:
     void creat_Connection();

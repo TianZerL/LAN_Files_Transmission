@@ -26,8 +26,8 @@ MainWindow::MainWindow(QWidget *parent) :
     tcpServer = new QTcpServer(this);
     //链接信号与槽
     connect(tcpClient,SIGNAL(connected()),this,SLOT(send_Head()));
-    connect(tcpClient,SIGNAL(bytesWritten(qint64)),this,SLOT(confirm_Head(qint64)));
-    connect(this,SIGNAL( readyForSendData()),this,SLOT(start_send_Data()));
+    connect(tcpClient,SIGNAL(waitForConfirm(qint64)),this,SLOT(confirm_Head(qint64)));
+    connect(this,SIGNAL(readyForSendData()),this,SLOT(start_send_Data()));
     //connect(tcpClient,SIGNAL(bytesWritten(qint64)),this,SLOT(continue_send_Data(qint64)));
     connect(tcpClient,SIGNAL(error(QAbstractSocket::SocketError)),this,SLOT(client_Error()));
     connect(tcpServer,SIGNAL(newConnection()),this,SLOT(creat_Connection()));   //连接请求处理
@@ -110,7 +110,9 @@ void MainWindow::read_Data()
 
 void MainWindow::cls_currConnection()
 {
-    if(!recvFile||(recvFile&&!recvFile->isOpen()))
+    if(recvFile==nullptr)
+        return;
+    if(!recvFile->isOpen())
         return;
     QMessageBox::information(this,tr("Server"),tr("Connection have been closed."));
     currClient->close();
@@ -158,17 +160,19 @@ void MainWindow::send_Head()
     out<<QString("##head##")<<srcFileInfo.fileName()<<src_fileSize;
     //发送文件头数据
     tcpClient->write(src_fileCache);
+    emit waitForConfirm(src_fileCache.size());
 }
 
 void MainWindow::confirm_Head(qint64 headSize)
 {
-    if(tcpClient->waitForReadyRead(-1))
+    if(tcpClient->waitForReadyRead(100000))
     {
         if(QString(tcpClient->readAll())=="##refused##")
         {
             QMessageBox::warning(this,tr("Client"),tr("Sever refues receive file"));
             srcFile->close();
             tcpClient->close();
+            ui->send_pb->setEnabled(true);
             return;
         }
     }
@@ -187,8 +191,10 @@ void MainWindow::start_send_Data()
     {
         src_fileCache=srcFile->read(qMin(tosend_fileSize,blockSize));        //将数据块写入缓存
         sizeOfSend = tcpClient->write(src_fileCache);
+        tcpClient->waitForBytesWritten();
         tosend_fileSize -= sizeOfSend;
         sended_fileSize += sizeOfSend;
+        qDebug()<<tosend_fileSize<<endl;
         src_fileCache.resize(0);
         ui->process->setValue(int(double(sended_fileSize)*100/double(src_fileSize)));   //设置进度条
     }
