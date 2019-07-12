@@ -25,8 +25,10 @@ MainWindow::MainWindow(QWidget *parent) :
     tcpClient = new QTcpSocket(this);
     tcpServer = new QTcpServer(this);
     //链接信号与槽
-    connect(tcpClient,SIGNAL(connected()),this,SLOT(start_send_Data()));
-    connect(tcpClient,SIGNAL(bytesWritten(qint64)),this,SLOT(continue_send_Data(qint64)));
+    connect(tcpClient,SIGNAL(connected()),this,SLOT(send_Head()));
+    connect(tcpClient,SIGNAL(bytesWritten(qint64)),this,SLOT(confirm_Head(qint64)));
+    connect(this,SIGNAL( readyForSendData()),this,SLOT(start_send_Data()));
+    //connect(tcpClient,SIGNAL(bytesWritten(qint64)),this,SLOT(continue_send_Data(qint64)));
     connect(tcpClient,SIGNAL(error(QAbstractSocket::SocketError)),this,SLOT(client_Error()));
     connect(tcpServer,SIGNAL(newConnection()),this,SLOT(creat_Connection()));   //连接请求处理
     connect(tcpServer,SIGNAL(acceptError(QAbstractSocket::SocketError)),this,SLOT(server_connection_Error()));
@@ -63,8 +65,13 @@ void MainWindow::read_Data()
         in >> headInfo >> recv_fileName >> recv_fileSize;
         if(QMessageBox::information(this,tr("Server"),"from: "+currClient->peerAddress().toString().mid(7)+"\nFile name: "+recv_fileName+"\nFile size: "+QString::number(recv_fileSize/1000000.0)+"mb",QMessageBox::Yes | QMessageBox::No,QMessageBox::No)==QMessageBox::No)
         {
+            currClient->write("##refused##");
             currClient->close();
             return;
+        }
+        else
+        {
+            currClient->write("##confirm##");
         }
         recvPath.setPath(ui->path_le_server->text());
         if(!recvPath.exists())
@@ -130,7 +137,7 @@ void MainWindow::server_connection_Error()
     QMessageBox::warning(this,tr("Server"),tcpServer->errorString());
 }
 
-void MainWindow::start_send_Data()
+void MainWindow::send_Head()
 {
     //关闭发送按钮
     ui->send_pb->setEnabled(false);
@@ -151,42 +158,46 @@ void MainWindow::start_send_Data()
     out<<QString("##head##")<<srcFileInfo.fileName()<<src_fileSize;
     //发送文件头数据
     tcpClient->write(src_fileCache);
-    if((tcpClient->waitForDisconnected(100000)))
+}
+
+void MainWindow::confirm_Head(qint64 headSize)
+{
+    if(tcpClient->waitForReadyRead(-1))
     {
-        QMessageBox::warning(this,tr("Client"),tr("Sever refues receive file"));
-        srcFile->close();
-        tcpClient->close();
-        return;
+        if(QString(tcpClient->readAll())=="##refused##")
+        {
+            QMessageBox::warning(this,tr("Client"),tr("Sever refues receive file"));
+            srcFile->close();
+            tcpClient->close();
+            return;
+        }
     }
     ui->process->setValue(0);
     //初始化已发送文件大小，减去文件头大小
-    sended_fileSize = -src_fileCache.size();
+    sended_fileSize = -headSize;
     src_fileCache.resize(0);
+    emit  readyForSendData();
 }
 
-void MainWindow::continue_send_Data(qint64 size_of_bytes)
+void MainWindow::start_send_Data()
 {
     //已发送文件大小
-    sended_fileSize += size_of_bytes;
-    if(tosend_fileSize>0)
+    qint64 sizeOfSend = 0;
+    while(tosend_fileSize>0)
     {
         src_fileCache=srcFile->read(qMin(tosend_fileSize,blockSize));        //将数据块写入缓存
-        tosend_fileSize -= size_of_bytes;
-        tcpClient->write(src_fileCache);
+        sizeOfSend = tcpClient->write(src_fileCache);
+        tosend_fileSize -= sizeOfSend;
+        sended_fileSize += sizeOfSend;
         src_fileCache.resize(0);
         ui->process->setValue(int(double(sended_fileSize)*100/double(src_fileSize)));   //设置进度条
     }
-
-    if(tosend_fileSize<=0)
-    {
         ui->process->setValue(0);//重置进度条
         srcFile->close();   //关闭源文件
         tcpClient->close(); //关闭tcp客户端
         delete srcFile; //delete防止内存泄漏
         QMessageBox::information(this,tr("Client"),tr("Successful!"));
         ui->send_pb->setEnabled(true);
-    }
-
 }
 
 void MainWindow::on_listen_pb_clicked()
@@ -221,8 +232,6 @@ void MainWindow::on_send_pb_clicked()
         return;
     }
     tcpClient->connectToHost(ui->ip_le->text(),ui->port_le->text().toUShort());    //连接到服务器
-    if(!tcpClient->waitForConnected())
-        QMessageBox::warning(this,tr("Client"),tr("Faild to connect to server"));
 }
 //文件以及目录选择
 void MainWindow::on_pick_pb_clicked()

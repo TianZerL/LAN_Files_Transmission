@@ -21,6 +21,9 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+signals:
+    void readyForSendData();
+
 private slots:
     void creat_Connection();
 
@@ -34,9 +37,11 @@ private slots:
 
     void server_connection_Error();
 
-    void start_send_Data();
+    void send_Head();
 
-    void continue_send_Data(qint64 size_of_bytes);
+    void confirm_Head(qint64 headSize);
+
+    void start_send_Data();
 
     void on_listen_pb_clicked();
 
