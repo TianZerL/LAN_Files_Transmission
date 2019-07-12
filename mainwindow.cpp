@@ -26,7 +26,7 @@ MainWindow::MainWindow(QWidget *parent) :
     tcpServer = new QTcpServer(this);
     //链接信号与槽
     connect(tcpClient,SIGNAL(connected()),this,SLOT(send_Head()));
-    connect(tcpClient,SIGNAL(waitForConfirm(qint64)),this,SLOT(confirm_Head(qint64)));
+    connect(this,SIGNAL(waitForConfirm(qint64)),this,SLOT(confirm_Head(qint64)));
     connect(this,SIGNAL(readyForSendData()),this,SLOT(start_send_Data()));
     //connect(tcpClient,SIGNAL(bytesWritten(qint64)),this,SLOT(continue_send_Data(qint64)));
     connect(tcpClient,SIGNAL(error(QAbstractSocket::SocketError)),this,SLOT(client_Error()));
@@ -191,12 +191,12 @@ void MainWindow::start_send_Data()
     {
         src_fileCache=srcFile->read(qMin(tosend_fileSize,blockSize));        //将数据块写入缓存
         sizeOfSend = tcpClient->write(src_fileCache);
-        tcpClient->waitForBytesWritten();
         tosend_fileSize -= sizeOfSend;
         sended_fileSize += sizeOfSend;
         qDebug()<<tosend_fileSize<<endl;
         src_fileCache.resize(0);
         ui->process->setValue(int(double(sended_fileSize)*100/double(src_fileSize)));   //设置进度条
+        tcpClient->waitForBytesWritten();
     }
         ui->process->setValue(0);//重置进度条
         srcFile->close();   //关闭源文件
