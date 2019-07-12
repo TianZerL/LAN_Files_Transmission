@@ -36,10 +36,15 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->port_le_server->setText(config.defaultPort);
     ui->path_le_server->setText(config.defaultRecvPath);
     blockSize=config.diskCacheSize;
+
+    ipCompleter = new IP_Completer(ui->ip_le);
+    connect(this,SIGNAL(addIPToList(QString)),ipCompleter,SLOT(addIP(QString)));
+    ui->ip_le->setCompleter(ipCompleter->getCompleter());
 }
 
 MainWindow::~MainWindow()
 {
+    delete ipCompleter;
     delete tcpClient;
     delete tcpServer;
     delete ui;
@@ -99,8 +104,8 @@ void MainWindow::read_Data()
     {
         ui->process_server->setValue(0);
         recvFile->close();
-        currClient->close();
         delete recvFile;
+        currClient->close();
         isHead=true;
         QMessageBox::information(this,tr("Server"),("Finished"));
     }
@@ -115,6 +120,7 @@ void MainWindow::cls_currConnection()
     QMessageBox::information(this,tr("Server"),tr("Connection have been closed."));
     currClient->close();
     recvFile->close();
+    delete recvFile;
     ui->process_server->setValue(0);
 }
 
@@ -200,8 +206,8 @@ void MainWindow::start_send_Data()
     }
         ui->process->setValue(0);//重置进度条
         srcFile->close();   //关闭源文件
-        tcpClient->close(); //关闭tcp客户端
         delete srcFile; //delete防止内存泄漏
+        tcpClient->close(); //关闭tcp客户端
         QMessageBox::information(this,tr("Client"),tr("Successful!"));
         ui->send_pb->setEnabled(true);
 }
@@ -232,6 +238,12 @@ void MainWindow::on_cancle_pb_clicked()
 
 void MainWindow::on_send_pb_clicked()
 {
+    if(ui->ip_le->text().count('.')<3||ui->ip_le->text().endsWith('.'))
+    {
+        QMessageBox::warning(this,tr("Client"),tr("Ip is not correct!"));
+        return;
+    }
+    emit addIPToList(ui->ip_le->text());
     if(ui->file_le->text().isEmpty())
     {
         QMessageBox::warning(this,tr("Client"),tr("File path can not be empty!"));

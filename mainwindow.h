@@ -8,6 +8,7 @@
 #include <QByteArray>
 #include <QFileDialog>
 #include "config.h"
+#include "ip_completer.h"
 
 namespace Ui {
 class MainWindow;
@@ -24,6 +25,7 @@ public:
 signals:
     void readyForSendData();
     void waitForConfirm(qint64);
+    void addIPToList(QString);
 
 private slots:
     void creat_Connection();
@@ -62,6 +64,7 @@ private:
     //QList<QTcpSocket *> tcpCLient_List;
     QTcpSocket *currClient;
     QTcpServer *tcpServer;
+    IP_Completer *ipCompleter;
 
     qint64 blockSize;  //单次发送数据大小
     qint64 diskCacheSize;

@@ -26,11 +26,13 @@ CONFIG += c++11
 
 SOURCES += \
         config.cpp \
+        ip_completer.cpp \
         main.cpp \
         mainwindow.cpp
 
 HEADERS += \
         config.h \
+        ip_completer.h \
         mainwindow.h
 
 FORMS += \

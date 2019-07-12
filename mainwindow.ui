@@ -239,7 +239,7 @@
      <x>0</x>
      <y>0</y>
      <width>587</width>
-     <height>25</height>
+     <height>22</height>
     </rect>
    </property>
   </widget>
@@ -247,9 +247,17 @@
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <tabstops>
+  <tabstop>ip_le</tabstop>
   <tabstop>port_le</tabstop>
-  <tabstop>file_le</tabstop>
+  <tabstop>pick_pb</tabstop>
   <tabstop>send_pb</tabstop>
+  <tabstop>file_le</tabstop>
+  <tabstop>sycn_pb</tabstop>
+  <tabstop>port_le_server</tabstop>
+  <tabstop>pick_pb_server</tabstop>
+  <tabstop>path_le_server</tabstop>
+  <tabstop>listen_pb</tabstop>
+  <tabstop>cancle_pb</tabstop>
  </tabstops>
  <resources/>
  <connections/>
