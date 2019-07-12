@@ -125,6 +125,7 @@ void MainWindow::client_Error()
     QMessageBox::warning(this,tr("Client"),tcpClient->errorString());
     if(tcpClient->isOpen())
         tcpClient->close();
+    ui->send_pb->setEnabled(true);
 }
 
 void MainWindow::server_Error()
@@ -165,12 +166,14 @@ void MainWindow::send_Head()
 
 void MainWindow::confirm_Head(qint64 headSize)
 {
-    if(tcpClient->waitForReadyRead(100000))
+    if(tcpClient->waitForReadyRead(10000))
     {
+        QApplication::processEvents();
         if(QString(tcpClient->readAll())=="##refused##")
         {
             QMessageBox::warning(this,tr("Client"),tr("Sever refues receive file"));
             srcFile->close();
+            delete srcFile;
             tcpClient->close();
             ui->send_pb->setEnabled(true);
             return;
@@ -193,10 +196,10 @@ void MainWindow::start_send_Data()
         sizeOfSend = tcpClient->write(src_fileCache);
         tosend_fileSize -= sizeOfSend;
         sended_fileSize += sizeOfSend;
-        qDebug()<<tosend_fileSize<<endl;
         src_fileCache.resize(0);
         ui->process->setValue(int(double(sended_fileSize)*100/double(src_fileSize)));   //设置进度条
         tcpClient->waitForBytesWritten();
+        QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
     }
         ui->process->setValue(0);//重置进度条
         srcFile->close();   //关闭源文件
