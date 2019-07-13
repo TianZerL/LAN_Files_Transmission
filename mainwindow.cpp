@@ -14,8 +14,6 @@ MainWindow::MainWindow(QWidget *parent) :
     //初始化相关变量
     currClient = nullptr;
     srcFile = nullptr;
-    recvFile = nullptr;
-    isHead=true;
     //限制输入类型，利用正则表达式
     ui->ip_le->setValidator(new QRegExpValidator(QRegExp("^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-4]|2[0-4][0-9]|[01]?[0-9][0-9]?)&"),ui->ip_le));
     ui->port_le->setValidator(new QRegExpValidator(QRegExp("^(?:[0-9]|[1-9]\\d|[1-9]\\d{2}|[1-9]\\d{3}|[1-5]\\d{4}|6[0-4]\\d{3}|65[0-4]\\d{2}|655[0-2]\\d|6553[0-5])$"),ui->port_le));
@@ -54,79 +52,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::creat_Connection()
 {
-//    if(!currClient||currClient->isOpen())
-//    {
-//        return;
-//    }
-//    currClient=tcpServer->nextPendingConnection();
-    //tcpCLient_List<<currClient;
-//    connect(currClient,SIGNAL(readyRead()),this,SLOT(read_Data()));  //读取准备
-//    connect(currClient,SIGNAL(disconnected()),this,SLOT(cls_currConnection()));  //掉线处理
     tcpServer->setPath(ui->path_le_server->text());
-}
-
-void MainWindow::read_Data()
-{
-    if(isHead)
-    {
-        QDataStream in(currClient);
-        in >> headInfo >> recv_fileName >> recv_fileSize;
-        if(QMessageBox::information(this,tr("Server"),"from: "+currClient->peerAddress().toString().mid(7)+"\nFile name: "+recv_fileName+"\nFile size: "+QString::number(recv_fileSize/1000000.0)+"mb",QMessageBox::Yes | QMessageBox::No,QMessageBox::No) == QMessageBox::No)
-        {
-            currClient->write("##refused##");
-            currClient->close();
-            return;
-        }
-        else
-        {
-            currClient->write("##confirm##");
-        }
-        recvPath.setPath(ui->path_le_server->text());
-        if(!recvPath.exists())
-            recvPath.mkpath(recvPath.path());
-        recvFile = new QFile(ui->path_le_server->text()+"/"+recv_fileName);
-        if(!recvFile->open(QIODevice::WriteOnly))
-        {
-            QMessageBox::critical(this,tr("Server"),tr("Faild to create file"));
-            currClient->close();
-            delete recvFile;
-            isHead=true;
-            return;
-        }
-
-        remaining_fileSize = recv_fileSize;
-        ui->process_server->reset();
-        isHead=false;
-    }
-    if(remaining_fileSize >0 && !isHead )
-    {
-        recv_fileCache=currClient->readAll();
-        remaining_fileSize-=recvFile->write(recv_fileCache);
-        recvFile->flush();
-        ui->process_server->setValue(int((1.0-(double(remaining_fileSize)/double(recv_fileSize)))*100));
-    }
-    if(remaining_fileSize <= 0)
-    {
-        ui->process_server->reset();
-        recvFile->close();
-        delete recvFile;
-        currClient->close();
-        isHead=true;
-        QMessageBox::information(this,tr("Server"),("Finished"));
-    }
-}
-
-void MainWindow::cls_currConnection()
-{
-    if(recvFile==nullptr)
-        return;
-    if(!recvFile->isOpen())
-        return;
-    QMessageBox::information(this,tr("Server"),tr("Connection have been closed."));
-    currClient->close();
-    recvFile->close();
-    delete recvFile;
-    ui->process_server->reset();
 }
 
 void MainWindow::client_Error()
@@ -140,8 +66,6 @@ void MainWindow::client_Error()
 void MainWindow::server_Error()
 {
     QMessageBox::warning(this,tr("Server"),currClient->errorString());
-//    if(currClient->isOpen())
-//        currClient->close();
 }
 
 void MainWindow::server_connection_Error()

@@ -31,10 +31,6 @@ signals:
 private slots:
     void creat_Connection();
 
-    void read_Data();
-
-    void cls_currConnection();
-
     void client_Error();
 
     void server_Error();
@@ -64,7 +60,6 @@ private:
 private:
     Ui::MainWindow *ui;
     QTcpSocket *tcpClient;
-    //QList<QTcpSocket *> tcpCLient_List;
     QTcpSocket *currClient;
     TcpServer *tcpServer;
     IP_Completer *ipCompleter;
@@ -77,13 +72,6 @@ private:
     QByteArray src_fileCache;
     QString src_fileName;
     qint64 src_fileSize,sended_fileSize,tosend_fileSize;
-
-    QFile *recvFile;
-    QDir recvPath;
-    QByteArray recv_fileCache;
-    QString headInfo,recv_fileName;
-    qint64 recv_fileSize, remaining_fileSize;
-    bool isHead;
 
     Config config;
 };
