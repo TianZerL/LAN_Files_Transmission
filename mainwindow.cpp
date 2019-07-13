@@ -195,3 +195,19 @@ void MainWindow::on_pick_pb_server_clicked()
     //选取接收目录
     ui->path_le_server->setText(QFileDialog::getExistingDirectory());
 }
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    if(!ipCompleter->saveHistory())
+        switch (QMessageBox::warning(this,tr("Waring"),tr("Faild to save ip history file"),QMessageBox::Ignore | QMessageBox::Retry |QMessageBox::Cancel))
+        {
+        case QMessageBox::Cancel:
+            event->ignore();
+            break;
+        case QMessageBox::Retry:
+            closeEvent(event);
+            break;
+        default:
+            event->accept();
+        }
+}

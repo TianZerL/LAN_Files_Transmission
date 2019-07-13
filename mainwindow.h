@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QCloseEvent>
 #include <QTcpSocket>
 #include <QTcpServer>
 #include <QFile>
@@ -53,7 +54,8 @@ private slots:
 
     void on_pick_pb_server_clicked();
 
-private:
+protected:
+    void closeEvent(QCloseEvent *event);
 
 private:
     Ui::MainWindow *ui;
