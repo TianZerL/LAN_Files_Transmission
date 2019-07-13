@@ -1,5 +1,6 @@
 #include "tcpserverthread.h"
 #include <QDataStream>
+#include <QHostAddress>
 
 TcpServerThread::TcpServerThread(qintptr _socketDescriptor,QObject *parent) : QObject(parent),socketDescriptor(_socketDescriptor)
 {
@@ -30,7 +31,7 @@ void TcpServerThread::readyConfirm()
 
     QDataStream in(socket);
     in >> headInfo >> recv_fileName >> recv_fileSize;
-    emit needConfirm(headInfo,recv_fileName,recv_fileSize);
+    emit needConfirm(socket->peerAddress().toString().mid(7),recv_fileName,recv_fileSize);
 }
 
 void TcpServerThread::confirm(bool signal,QDir _recvPath)

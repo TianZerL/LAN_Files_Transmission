@@ -9,6 +9,7 @@
 #include <QFileDialog>
 #include "config.h"
 #include "ip_completer.h"
+#include "tcpserver.h"
 
 namespace Ui {
 class MainWindow;
@@ -45,6 +46,8 @@ private slots:
     void confirm_Head(qint64 headSize);
 
     void start_send_Data();
+
+    void setProgressBar(int value);
 
     void on_listen_pb_clicked();
 

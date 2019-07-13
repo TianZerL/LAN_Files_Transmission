@@ -23,12 +23,14 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->cancle_pb->setEnabled(false);
     //初始化tcp服务端和客户端
     tcpClient = new QTcpSocket(this);
-    tcpServer = new QTcpServer(this);
+    tcpServer = new TcpServer(this);
     //链接信号与槽
     connect(tcpClient,SIGNAL(connected()),this,SLOT(send_Head()));
     connect(this,SIGNAL(waitForConfirm(qint64)),this,SLOT(confirm_Head(qint64)));
     connect(this,SIGNAL(readyForSendData()),this,SLOT(start_send_Data()));
     connect(tcpClient,SIGNAL(error(QAbstractSocket::SocketError)),this,SLOT(client_Error()));
+    connect(tcpServer,SIGNAL(error(QAbstractSocket::SocketError)),this,SLOT(server_Error()));
+    connect(tcpServer,SIGNAL(ProgressBarValue(int)),this,SLOT(setProgressBar(int)));
     connect(tcpServer,SIGNAL(newConnection()),this,SLOT(creat_Connection()));   //连接请求处理
     connect(tcpServer,SIGNAL(acceptError(QAbstractSocket::SocketError)),this,SLOT(server_connection_Error()));
 
@@ -52,15 +54,14 @@ MainWindow::~MainWindow()
 
 void MainWindow::creat_Connection()
 {
-    if(!currClient||currClient->isOpen())
-    {
-        return;
-    }
-    currClient=tcpServer->nextPendingConnection();
+//    if(!currClient||currClient->isOpen())
+//    {
+//        return;
+//    }
+//    currClient=tcpServer->nextPendingConnection();
     //tcpCLient_List<<currClient;
-    connect(currClient,SIGNAL(readyRead()),this,SLOT(read_Data()));  //读取准备
-    connect(currClient,SIGNAL(disconnected()),this,SLOT(cls_currConnection()));  //掉线处理
-    connect(currClient,SIGNAL(error(QAbstractSocket::SocketError)),this,SLOT(server_Error()));
+//    connect(currClient,SIGNAL(readyRead()),this,SLOT(read_Data()));  //读取准备
+//    connect(currClient,SIGNAL(disconnected()),this,SLOT(cls_currConnection()));  //掉线处理
 
 }
 
