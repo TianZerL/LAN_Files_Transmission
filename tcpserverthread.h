@@ -16,6 +16,7 @@ public:
 signals:
     void error(QTcpSocket::SocketError);
     void readFinished();
+    void refuseConnection();
     void needConfirm(QString,QString,qint64);
     void progress(int);
 public slots:

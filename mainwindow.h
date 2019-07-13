@@ -24,8 +24,6 @@ public:
     ~MainWindow();
 
 signals:
-    void readyForSendData();
-    void waitForConfirm(qint64);
     void addIPToList(QString);
 
 private slots:
@@ -39,7 +37,7 @@ private slots:
 
     void send_Head();
 
-    void confirm_Head(qint64 headSize);
+    void confirm_Head();
 
     void start_send_Data();
 

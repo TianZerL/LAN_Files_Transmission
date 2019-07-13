@@ -24,8 +24,7 @@ MainWindow::MainWindow(QWidget *parent) :
     tcpServer = new TcpServer(this);
     //链接信号与槽
     connect(tcpClient,SIGNAL(connected()),this,SLOT(send_Head()));
-    connect(this,SIGNAL(waitForConfirm(qint64)),this,SLOT(confirm_Head(qint64)));
-    connect(this,SIGNAL(readyForSendData()),this,SLOT(start_send_Data()));
+    connect(tcpClient,SIGNAL(readyRead()),this,SLOT(confirm_Head()));
     connect(tcpClient,SIGNAL(error(QAbstractSocket::SocketError)),this,SLOT(client_Error()));
     connect(tcpServer,SIGNAL(error(QTcpSocket::SocketError)),this,SLOT(server_Error()));
     connect(tcpServer,SIGNAL(ProgressBarValue(int)),this,SLOT(setProgressBar(int)));
@@ -85,6 +84,7 @@ void MainWindow::send_Head()
         QMessageBox::critical(this,tr("Client"),tr("Faild to open file"));
         tcpClient->close(); //关闭tcp客户端
         delete srcFile; //delete防止内存泄漏
+        srcFile=nullptr;
         return;
     };
     //取得待发送文件大小
@@ -94,34 +94,30 @@ void MainWindow::send_Head()
     out<<QString("##head##")<<srcFileInfo.fileName()<<src_fileSize;
     //发送文件头数据
     tcpClient->write(src_fileCache);
-    emit waitForConfirm(src_fileCache.size());
+    src_fileCache.resize(0);
 }
 
-void MainWindow::confirm_Head(qint64 headSize)
+void MainWindow::confirm_Head()
 {
-    if(tcpClient->waitForReadyRead())
+    if((tcpClient->readAll()=="##refused##"))
     {
-        if((tcpClient->readAll()=="##refused##"))
-        {
-            QMessageBox::warning(this,tr("Client"),tr("Sever refues receive file"));
-            srcFile->close();
-            delete srcFile;
-            //tcpClient->close();
-            ui->send_pb->setEnabled(true);
-            return;
-        }
+        QMessageBox::warning(this,tr("Client"),tr("Sever refues receive file"));
+        srcFile->close();
+        delete srcFile;
+        srcFile=nullptr;
+        tcpClient->close();
+        ui->send_pb->setEnabled(true);
+        return;
     }
-    ui->process->reset();
-    //初始化已发送文件大小，减去文件头大小
-    sended_fileSize = -headSize;
-    src_fileCache.resize(0);
-    emit  readyForSendData();
+    start_send_Data();
 }
 
 void MainWindow::start_send_Data()
 {
     //已发送文件大小
     qint64 sizeOfSend = 0;
+    sended_fileSize = 0;
+    ui->process->reset();
     while(tosend_fileSize>0)
     {
         src_fileCache=srcFile->read(qMin(tosend_fileSize,blockSize));        //将数据块写入缓存
@@ -136,6 +132,7 @@ void MainWindow::start_send_Data()
         ui->process->reset();//重置进度条
         srcFile->close();   //关闭源文件
         delete srcFile; //delete防止内存泄漏
+        srcFile=nullptr;
         tcpClient->close(); //关闭tcp客户端
         QMessageBox::information(this,tr("Client"),tr("Successful!"));
         ui->send_pb->setEnabled(true);

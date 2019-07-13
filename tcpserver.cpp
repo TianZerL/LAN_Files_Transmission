@@ -34,20 +34,21 @@ void TcpServer::finished()
 
 void TcpServer::incomingConnection(qintptr socketDescriptor)
 {
-    TcpServerThread *thread = new TcpServerThread(socketDescriptor);
-    QThread *threadContainer = new QThread(this);
-    thread->moveToThread(threadContainer);
-    connect(threadContainer,SIGNAL(finished()),thread,SLOT(deleteLater()));
-    connect(threadContainer,SIGNAL(finished()),threadContainer,SLOT(deleteLater()));
-    connect(thread,SIGNAL(needConfirm(QString,QString,qint64)),this,SLOT(confirmForReadData(QString,QString,qint64)));
-    connect(this,SIGNAL(confirmResult(bool,QDir)),thread,SLOT(confirm(bool,QDir)));
-    connect(thread,SIGNAL(progress(int)),this,SLOT(progressBarValueForUi(int)));
-    connect(thread,SIGNAL(error(QTcpSocket::SocketError)),this,SLOT(transferError(QTcpSocket::SocketError)));
-    connect(thread,SIGNAL(readFinished()),threadContainer,SLOT(quit()));
-    connect(thread,SIGNAL(readFinished()),threadContainer,SLOT(finished()));
-    connect(threadContainer,SIGNAL(started()),thread,SLOT(inil()));
-    threadContainer->start();
-    emit newConnection();
+    TcpServerThread *thread = new TcpServerThread(socketDescriptor);    //新线程
+    QThread *threadContainer = new QThread(this);   //线程容器
+    thread->moveToThread(threadContainer);  //装入容器
+    connect(threadContainer,SIGNAL(finished()),thread,SLOT(deleteLater())); //读取结束后自我销毁
+    connect(threadContainer,SIGNAL(finished()),threadContainer,SLOT(deleteLater()));    //读取结束后自我销毁
+    connect(thread,SIGNAL(needConfirm(QString,QString,qint64)),this,SLOT(confirmForReadData(QString,QString,qint64)));  //确认请求
+    connect(this,SIGNAL(confirmResult(bool,QDir)),thread,SLOT(confirm(bool,QDir))); //确认请求结果
+    connect(thread,SIGNAL(progress(int)),this,SLOT(progressBarValueForUi(int)));    //更新进度条
+    connect(thread,SIGNAL(error(QTcpSocket::SocketError)),this,SLOT(transferError(QTcpSocket::SocketError)));   //错误信息
+    connect(thread,SIGNAL(refuseConnection()),threadContainer,SLOT(quit()));    //确保推出线程
+    connect(thread,SIGNAL(readFinished()),threadContainer,SLOT(quit()));    //确保推出线程
+    connect(thread,SIGNAL(readFinished()),this,SLOT(finished()));   //读取完成后进行提示
+    connect(threadContainer,SIGNAL(started()),thread,SLOT(inil())); //调用新线程
+    threadContainer->start();   //开启新线程
+    emit newConnection();   //发送新连接信号
 }
 
 QDir TcpServer::getPath() const

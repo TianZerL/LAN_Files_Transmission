@@ -4,14 +4,30 @@
 
 TcpServerThread::TcpServerThread(qintptr _socketDescriptor,QObject *parent) : QObject(parent),socketDescriptor(_socketDescriptor)
 {
-
+    socket=nullptr;
+    recvFile=nullptr;
 }
 
 TcpServerThread::~TcpServerThread()
 {
+    if(recvFile!=nullptr)
+    {
+        if(recvFile->isOpen())
+        {
+            recvFile->close();
+            delete recvFile;
+            recvFile=nullptr;
+        }
+        else
+        {
+            delete recvFile;
+            recvFile=nullptr;
+        }
+    }
     if(socket->isOpen())
         socket->close();
     delete socket;
+    socket=nullptr;
 }
 
 void TcpServerThread::inil()
@@ -40,6 +56,7 @@ void TcpServerThread::confirm(bool signal,QDir _recvPath)
     {
         socket->write("##refused##");
         socket->close();
+        emit refuseConnection();
     }
     else
     {
@@ -51,6 +68,7 @@ void TcpServerThread::confirm(bool signal,QDir _recvPath)
         {
             socket->close();
             delete recvFile;
+            recvFile=nullptr;
             return;
         }
         remaining_fileSize = recv_fileSize;
@@ -72,6 +90,7 @@ void TcpServerThread::readData()
     {
         recvFile->close();
         delete recvFile;
+        recvFile=nullptr;
         socket->close();
         emit progress(0);
         emit readFinished();
