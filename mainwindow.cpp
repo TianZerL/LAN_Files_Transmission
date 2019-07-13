@@ -52,6 +52,10 @@ MainWindow::~MainWindow()
 
 void MainWindow::creat_Connection()
 {
+    if(!currClient||currClient->isOpen())
+    {
+        return;
+    }
     currClient=tcpServer->nextPendingConnection();
     //tcpCLient_List<<currClient;
     connect(currClient,SIGNAL(readyRead()),this,SLOT(read_Data()));  //读取准备
@@ -90,7 +94,7 @@ void MainWindow::read_Data()
         }
 
         remaining_fileSize = recv_fileSize;
-        ui->process_server->setValue(0);
+        ui->process_server->reset();
         isHead=false;
     }
     if(remaining_fileSize >0 && !isHead )
@@ -102,7 +106,7 @@ void MainWindow::read_Data()
     }
     if(remaining_fileSize <= 0)
     {
-        ui->process_server->setValue(0);
+        ui->process_server->reset();
         recvFile->close();
         delete recvFile;
         currClient->close();
@@ -121,7 +125,7 @@ void MainWindow::cls_currConnection()
     currClient->close();
     recvFile->close();
     delete recvFile;
-    ui->process_server->setValue(0);
+    ui->process_server->reset();
 }
 
 void MainWindow::client_Error()
@@ -170,6 +174,7 @@ void MainWindow::send_Head()
 
 void MainWindow::confirm_Head(qint64 headSize)
 {
+    QApplication::processEvents();
     if(tcpClient->waitForReadyRead())
     {
         if((tcpClient->readAll()=="##refused##"))
@@ -182,7 +187,7 @@ void MainWindow::confirm_Head(qint64 headSize)
             return;
         }
     }
-    ui->process->setValue(0);
+    ui->process->reset();
     //初始化已发送文件大小，减去文件头大小
     sended_fileSize = -headSize;
     src_fileCache.resize(0);
@@ -204,7 +209,7 @@ void MainWindow::start_send_Data()
         tcpClient->waitForBytesWritten();
         QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
     }
-        ui->process->setValue(0);//重置进度条
+        ui->process->reset();//重置进度条
         srcFile->close();   //关闭源文件
         delete srcFile; //delete防止内存泄漏
         tcpClient->close(); //关闭tcp客户端

@@ -25,17 +25,24 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++11
 
 SOURCES += \
+        advancedmode_widget.cpp \
         config.cpp \
         ip_completer.cpp \
         main.cpp \
-        mainwindow.cpp
+        mainwindow.cpp \
+        tcpserver.cpp \
+        tcpserverthread.cpp
 
 HEADERS += \
+        advancedmode_widget.h \
         config.h \
         ip_completer.h \
-        mainwindow.h
+        mainwindow.h \
+        tcpserver.h \
+        tcpserverthread.h
 
 FORMS += \
+        advancedmode_widget.ui \
         mainwindow.ui
 
 # Default rules for deployment.
