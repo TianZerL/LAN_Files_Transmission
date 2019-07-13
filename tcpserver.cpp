@@ -11,10 +11,11 @@ TcpServer::TcpServer(QObject *parent):
 
 void TcpServer::confirmForReadData(QString IP, QString fileName, qint64 fileSize)
 {
-    if(QMessageBox::information(nullptr,tr("Server"),"from: "+IP+"\nFile name: "+fileName+"\nFile size: "+QString::number(fileSize/1000000.0)+"mb",QMessageBox::Yes | QMessageBox::No,QMessageBox::No) == QMessageBox::No)
-        emit confirmResult(false,path);
-    else
-        emit confirmResult(true,path);
+    emit confirmResult(true,path);
+//    if(QMessageBox::information(nullptr,tr("Server"),"from: "+IP+"\nFile name: "+fileName+"\nFile size: "+QString::number(fileSize/1000000.0)+"mb",QMessageBox::Yes | QMessageBox::No,QMessageBox::No) == QMessageBox::No)
+//        emit confirmResult(false,path);
+//    else
+//        emit confirmResult(true,path);
 }
 
 void TcpServer::progressBarValueForUi(int value)
@@ -34,10 +35,10 @@ void TcpServer::incomingConnection(qintptr socketDescriptor)
     thread->moveToThread(threadContainer);
     connect(threadContainer,SIGNAL(finished()),thread,SLOT(deleteLater()));
     connect(threadContainer,SIGNAL(finished()),threadContainer,SLOT(deleteLater()));
-    connect(thread,SIGNAL(needConfirm(QString,QString,qint64)),threadContainer,SLOT(confirmForReadData(QString,QString,qint64)));
-    connect(threadContainer,SIGNAL(confirmResult(bool,QDir)),thread,SLOT(confirm(bool,QDir)));
-    connect(thread,SIGNAL(progress(int)),threadContainer,SLOT(progressBarValueForUi(int)));
-    connect(thread,SIGNAL(error(QTcpSocket::SocketError)),threadContainer,SLOT(transferError(QTcpSocket::SocketError)));
+    connect(thread,SIGNAL(needConfirm(QString,QString,qint64)),this,SLOT(confirmForReadData(QString,QString,qint64)));
+    connect(this,SIGNAL(confirmResult(bool,QDir)),thread,SLOT(confirm(bool,QDir)));
+    connect(thread,SIGNAL(progress(int)),this,SLOT(progressBarValueForUi(int)));
+    connect(thread,SIGNAL(error(QTcpSocket::SocketError)),this,SLOT(transferError(QTcpSocket::SocketError)));
     connect(thread,SIGNAL(readFinished()),threadContainer,SLOT(quit()));
     connect(threadContainer,SIGNAL(started()),thread,SLOT(inil()));
     threadContainer->start();

@@ -1,6 +1,7 @@
 #include "tcpserverthread.h"
 #include <QDataStream>
 #include <QHostAddress>
+#include <QDebug>
 
 TcpServerThread::TcpServerThread(qintptr _socketDescriptor,QObject *parent) : QObject(parent),socketDescriptor(_socketDescriptor)
 {
@@ -27,7 +28,7 @@ void TcpServerThread::inil()
 
 void TcpServerThread::readyConfirm()
 {
-    disconnect(socket,SIGNAL(readyRead()),this,SLOT(confirm()));
+    disconnect(socket,SIGNAL(readyRead()),this,SLOT(readyConfirm()));
 
     QDataStream in(socket);
     in >> headInfo >> recv_fileName >> recv_fileSize;
@@ -55,6 +56,7 @@ void TcpServerThread::confirm(bool signal,QDir _recvPath)
         }
         remaining_fileSize = recv_fileSize;
         connect(socket,SIGNAL(readyRead()),this,SLOT(readData()));
+        qDebug()<<recvPath.path();
         socket->write("##confirm##");
     }
 }

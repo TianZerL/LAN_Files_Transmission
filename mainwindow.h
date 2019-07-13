@@ -66,7 +66,7 @@ private:
     QTcpSocket *tcpClient;
     //QList<QTcpSocket *> tcpCLient_List;
     QTcpSocket *currClient;
-    QTcpServer *tcpServer;
+    TcpServer *tcpServer;
     IP_Completer *ipCompleter;
 
     qint64 blockSize;  //单次发送数据大小
