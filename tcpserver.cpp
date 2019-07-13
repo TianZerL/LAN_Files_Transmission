@@ -27,6 +27,11 @@ void TcpServer::transferError(QAbstractSocket::SocketError errornum)
     emit error(errornum);
 }
 
+void TcpServer::finished()
+{
+    QMessageBox::information(nullptr,tr("Server"),tr("Receiving file finished!\nPath:")+path.path());
+}
+
 void TcpServer::incomingConnection(qintptr socketDescriptor)
 {
     TcpServerThread *thread = new TcpServerThread(socketDescriptor);
@@ -39,6 +44,7 @@ void TcpServer::incomingConnection(qintptr socketDescriptor)
     connect(thread,SIGNAL(progress(int)),this,SLOT(progressBarValueForUi(int)));
     connect(thread,SIGNAL(error(QTcpSocket::SocketError)),this,SLOT(transferError(QTcpSocket::SocketError)));
     connect(thread,SIGNAL(readFinished()),threadContainer,SLOT(quit()));
+    connect(thread,SIGNAL(readFinished()),threadContainer,SLOT(finished()));
     connect(threadContainer,SIGNAL(started()),thread,SLOT(inil()));
     threadContainer->start();
     emit newConnection();

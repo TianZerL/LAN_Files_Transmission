@@ -23,6 +23,7 @@ private slots:
     void confirmForReadData(QString IP,QString fileName,qint64 fileSize);
     void progressBarValueForUi(int value);
     void transferError(QTcpSocket::SocketError errornum);
+    void finished();
 
 protected:
     void incomingConnection(qintptr socketDescriptor);
