@@ -175,7 +175,6 @@ void MainWindow::send_Head()
 
 void MainWindow::confirm_Head(qint64 headSize)
 {
-    QApplication::processEvents();
     if(tcpClient->waitForReadyRead())
     {
         if((tcpClient->readAll()=="##refused##"))

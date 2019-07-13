@@ -22,8 +22,6 @@ public slots:
     void inil();
     void readyConfirm();
     void confirm(bool signal,QDir _recvPath);
-
-private:
     void readData();
 
 private:

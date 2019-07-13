@@ -6,16 +6,21 @@
 TcpServer::TcpServer(QObject *parent):
     QTcpServer (parent)
 {
+    qRegisterMetaType<QDir>("QDir");
+}
+
+TcpServer::~TcpServer()
+{
 
 }
 
 void TcpServer::confirmForReadData(QString IP, QString fileName, qint64 fileSize)
 {
-    emit confirmResult(true,path);
-//    if(QMessageBox::information(nullptr,tr("Server"),"from: "+IP+"\nFile name: "+fileName+"\nFile size: "+QString::number(fileSize/1000000.0)+"mb",QMessageBox::Yes | QMessageBox::No,QMessageBox::No) == QMessageBox::No)
-//        emit confirmResult(false,path);
-//    else
-//        emit confirmResult(true,path);
+//    emit confirmResult(true,path);
+    if(QMessageBox::information(nullptr,tr("Server"),"from: "+IP+"\nFile name: "+fileName+"\nFile size: "+QString::number(fileSize/1000000.0)+"mb",QMessageBox::Yes | QMessageBox::No,QMessageBox::No) == QMessageBox::No)
+        emit confirmResult(false,path);
+    else
+        emit confirmResult(true,path);
 }
 
 void TcpServer::progressBarValueForUi(int value)
@@ -42,6 +47,7 @@ void TcpServer::incomingConnection(qintptr socketDescriptor)
     connect(thread,SIGNAL(readFinished()),threadContainer,SLOT(quit()));
     connect(threadContainer,SIGNAL(started()),thread,SLOT(inil()));
     threadContainer->start();
+    emit newConnection();
 }
 
 QDir TcpServer::getPath() const

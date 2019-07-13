@@ -5,13 +5,14 @@
 
 TcpServerThread::TcpServerThread(qintptr _socketDescriptor,QObject *parent) : QObject(parent),socketDescriptor(_socketDescriptor)
 {
+
 }
 
 TcpServerThread::~TcpServerThread()
 {
     if(socket->isOpen())
         socket->close();
-    delete recvFile;
+//    delete recvFile;
     delete socket;
 }
 
@@ -28,6 +29,7 @@ void TcpServerThread::inil()
 
 void TcpServerThread::readyConfirm()
 {
+            qDebug()<<socketDescriptor;
     disconnect(socket,SIGNAL(readyRead()),this,SLOT(readyConfirm()));
 
     QDataStream in(socket);

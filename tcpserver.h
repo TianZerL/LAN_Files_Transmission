@@ -10,6 +10,7 @@ class TcpServer : public QTcpServer
     Q_OBJECT
 public:
     explicit TcpServer(QObject *parent = nullptr);
+    ~TcpServer();
 
     QDir getPath() const;
     void setPath(const QDir &value);
