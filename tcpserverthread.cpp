@@ -61,6 +61,8 @@ void TcpServerThread::confirm(bool signal,QDir _recvPath)
         if(!recvPath.exists())
             recvPath.mkpath(recvPath.path());
         recvFile = new QFile(recvPath.path()+"/"+recv_fileName);
+        if(recvFile->exists())
+            recvFile->setFileName(recvPath.path()+"/recv_"+recv_fileName);
         if(!recvFile->open(QIODevice::WriteOnly))
         {
             socket->close();

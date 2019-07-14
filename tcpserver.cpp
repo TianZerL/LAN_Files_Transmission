@@ -68,6 +68,16 @@ void TcpServer::incomingConnection(qintptr socketDescriptor)
     }
 }
 
+TcpServer::PermissionMode TcpServer::getPermissionMode() const
+{
+    return permissionMode;
+}
+
+void TcpServer::setPermissionMode(const PermissionMode &value)
+{
+    permissionMode = value;
+}
+
 QDir TcpServer::getPath() const
 {
     return path;

@@ -222,3 +222,10 @@ void MainWindow::on_cancle_pb_client_clicked()
     tcpClient->disconnectFromHost();
     tosend_fileSize = 0;
 }
+
+void MainWindow::on_actionAdvance_triggered()
+{
+    advancedmode_widget *advanceWidet;
+    advanceWidet = new advancedmode_widget;
+    advanceWidet->show();
+}

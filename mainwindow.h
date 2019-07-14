@@ -11,6 +11,7 @@
 #include "config.h"
 #include "ip_completer.h"
 #include "tcpserver.h"
+#include "advancedmode_widget.h"
 
 namespace Ui {
 class MainWindow;
@@ -55,6 +56,8 @@ private slots:
     void on_pick_pb_server_clicked();
 
     void on_cancle_pb_client_clicked();
+
+    void on_actionAdvance_triggered();
 
 protected:
     void closeEvent(QCloseEvent *event);

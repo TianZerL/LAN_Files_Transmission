@@ -23,6 +23,9 @@ public:
     QDir getPath() const;
     void setPath(const QDir &value);
 
+    PermissionMode getPermissionMode() const;
+    void setPermissionMode(const PermissionMode &value);
+
 signals:
     void confirmResult(bool,QDir);
     void ProgressBarValue(int);
