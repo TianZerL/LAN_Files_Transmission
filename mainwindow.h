@@ -32,7 +32,7 @@ private slots:
 
     void client_Error();
 
-    void server_Error();
+    void server_Error(QString errorString);
 
     void server_connection_Error();
 
@@ -54,13 +54,14 @@ private slots:
 
     void on_pick_pb_server_clicked();
 
+    void on_cancle_pb_client_clicked();
+
 protected:
     void closeEvent(QCloseEvent *event);
 
 private:
     Ui::MainWindow *ui;
     QTcpSocket *tcpClient;
-    QTcpSocket *currClient;
     TcpServer *tcpServer;
     IP_Completer *ipCompleter;
 

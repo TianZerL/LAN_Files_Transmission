@@ -14,7 +14,7 @@ public:
     ~TcpServerThread();
 
 signals:
-    void error(QTcpSocket::SocketError);
+    void error(QString);
     void readFinished();
     void refuseConnection();
     void needConfirm(QString,QString,qint64);
@@ -25,7 +25,7 @@ public slots:
     void confirm(bool signal,QDir _recvPath);
     void readData();
 
-    void getError(QAbstractSocket::SocketError socketError);
+    void getError();
 
 private:
     QTcpSocket *socket;

@@ -26,13 +26,14 @@ public:
 signals:
     void confirmResult(bool,QDir);
     void ProgressBarValue(int);
-    void error(QTcpSocket::SocketError);
+    void error(QString);
 
 private slots:
     void confirmForReadData(QString IP,QString fileName,qint64 fileSize);
     void progressBarValueForUi(int value);
-    void transferError(QTcpSocket::SocketError errornum);
+    void transferError(QString errorString);
     void finished();
+    void resetThreadFlag();
 
 protected:
     void incomingConnection(qintptr socketDescriptor);

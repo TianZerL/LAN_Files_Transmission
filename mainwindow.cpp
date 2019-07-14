@@ -12,13 +12,13 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     //初始化相关变量
-    currClient = nullptr;
     srcFile = nullptr;
     //限制输入类型，利用正则表达式
     ui->ip_le->setValidator(new QRegExpValidator(QRegExp("^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-4]|2[0-4][0-9]|[01]?[0-9][0-9]?)&"),ui->ip_le));
     ui->port_le->setValidator(new QRegExpValidator(QRegExp("^(?:[0-9]|[1-9]\\d|[1-9]\\d{2}|[1-9]\\d{3}|[1-5]\\d{4}|6[0-4]\\d{3}|65[0-4]\\d{2}|655[0-2]\\d|6553[0-5])$"),ui->port_le));
     ui->port_le_server->setValidator(new QRegExpValidator(QRegExp("^(?:[0-9]|[1-9]\\d|[1-9]\\d{2}|[1-9]\\d{3}|[1-5]\\d{4}|6[0-4]\\d{3}|65[0-4]\\d{2}|655[0-2]\\d|6553[0-5])$"),ui->port_le_server));
     ui->cancle_pb->setEnabled(false);
+    ui->cancle_pb_client->setEnabled(false);
     //初始化tcp服务端和客户端
     tcpClient = new QTcpSocket(this);
     tcpServer = new TcpServer(this);
@@ -26,7 +26,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(tcpClient,SIGNAL(connected()),this,SLOT(send_Head()));
     connect(tcpClient,SIGNAL(readyRead()),this,SLOT(confirm_Head()));
     connect(tcpClient,SIGNAL(error(QAbstractSocket::SocketError)),this,SLOT(client_Error()));
-    connect(tcpServer,SIGNAL(error(QTcpSocket::SocketError)),this,SLOT(server_Error()));
+    connect(tcpServer,SIGNAL(error(QString)),this,SLOT(server_Error(QString)));
     connect(tcpServer,SIGNAL(ProgressBarValue(int)),this,SLOT(setProgressBar(int)));
     connect(tcpServer,SIGNAL(newConnection()),this,SLOT(creat_Connection()));   //连接请求处理
     connect(tcpServer,SIGNAL(acceptError(QAbstractSocket::SocketError)),this,SLOT(server_connection_Error()));
@@ -62,9 +62,10 @@ void MainWindow::client_Error()
     ui->send_pb->setEnabled(true);
 }
 
-void MainWindow::server_Error()
+void MainWindow::server_Error(QString errorString)
 {
-    QMessageBox::warning(this,tr("Server"),currClient->errorString());
+    QMessageBox::warning(this,tr("Server"),errorString);
+    ui->process_server->reset();
 }
 
 void MainWindow::server_connection_Error()
@@ -118,6 +119,7 @@ void MainWindow::start_send_Data()
     qint64 sizeOfSend = 0;
     sended_fileSize = 0;
     ui->process->reset();
+    ui->cancle_pb_client->setEnabled(true);
     while(tosend_fileSize>0)
     {
         src_fileCache=srcFile->read(qMin(tosend_fileSize,blockSize));        //将数据块写入缓存
@@ -127,15 +129,16 @@ void MainWindow::start_send_Data()
         src_fileCache.resize(0);
         ui->process->setValue(int(double(sended_fileSize)*100/double(src_fileSize)));   //设置进度条
         tcpClient->waitForBytesWritten();
-        QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+        QApplication::processEvents();
     }
-        ui->process->reset();//重置进度条
-        srcFile->close();   //关闭源文件
-        delete srcFile; //delete防止内存泄漏
-        srcFile=nullptr;
-        tcpClient->close(); //关闭tcp客户端
-        QMessageBox::information(this,tr("Client"),tr("Successful!"));
-        ui->send_pb->setEnabled(true);
+    ui->process->reset();//重置进度条
+    srcFile->close();   //关闭源文件
+    delete srcFile; //delete防止内存泄漏
+    srcFile=nullptr;
+    tcpClient->close(); //关闭tcp客户端
+    QMessageBox::information(this,tr("Client"),tr("Successful!"));
+    ui->send_pb->setEnabled(true);
+    ui->cancle_pb_client->setEnabled(false);
 }
 
 void MainWindow::setProgressBar(int value)
@@ -210,4 +213,12 @@ void MainWindow::closeEvent(QCloseEvent *event)
         default:
             event->accept();
         }
+}
+
+void MainWindow::on_cancle_pb_client_clicked()
+{
+    if(QMessageBox::warning(this,"Waring","Are you sure to cancle?",QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::No)
+        return;
+    tcpClient->disconnectFromHost();
+    tosend_fileSize = 0;
 }
