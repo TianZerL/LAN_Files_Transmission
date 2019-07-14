@@ -27,6 +27,7 @@ public slots:
     void readData();
 
     void getError();
+    void cancled();
 
 private:
     QTcpSocket *socket;
@@ -36,7 +37,7 @@ private:
     QByteArray recv_fileCache;
     QString headInfo,recv_fileName,recv_pathName;
     qint64 recv_fileSize, remaining_fileSize,recv_pathSize, remaining_pathSize;
-    int  fileCount;
+    int  fileCount, i;
 };
 
 #endif // TCPSERVERTHREAD_H

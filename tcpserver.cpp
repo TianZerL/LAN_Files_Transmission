@@ -38,6 +38,11 @@ void TcpServer::resetThreadFlag()
     threadFlag = false;
 }
 
+void TcpServer::cancleReceiver()
+{
+    emit cancle();
+}
+
 void TcpServer::incomingConnection(qintptr socketDescriptor)
 {
     if(threadFlag)

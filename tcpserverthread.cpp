@@ -35,6 +35,7 @@ void TcpServerThread::inil()
     socket = new QTcpSocket;
     connect(socket,SIGNAL(error(QAbstractSocket::SocketError)),this,SLOT(getError()));
     socket->setSocketDescriptor(socketDescriptor);
+    connect(socket,SIGNAL(error(QAbstractSocket::SocketError)),this,SLOT(cancled()));
     connect(socket,SIGNAL(readyRead()),this,SLOT(readyConfirm()));
 }
 
@@ -99,7 +100,7 @@ void TcpServerThread::readData()
     disconnect(socket,SIGNAL(readyRead()),this,SLOT(readData()));
     if(headInfo == "##dir##")
     {
-        for (int i = 0 ; i<fileCount ; i++)
+        for (i = 0 ; i<fileCount ; i++)
         {
             qint64 tempSize;
             QString _fileName,_filePath;
@@ -162,4 +163,10 @@ void TcpServerThread::readData()
 void TcpServerThread::getError()
 {
     emit error(socket->errorString());
+}
+
+void TcpServerThread::cancled()
+{
+    remaining_fileSize = 0;
+    i = fileCount;
 }

@@ -1,4 +1,4 @@
-#ifndef TCPSERVER_H
+﻿#ifndef TCPSERVER_H
 #define TCPSERVER_H
 
 #include <QTcpServer>
@@ -30,6 +30,7 @@ signals:
     void confirmResult(bool,QDir);
     void ProgressBarValue(int);
     void error(QString);
+    void cancle();
 
 private slots:
     void confirmForReadData(QString IP,QString fileName,qint64 fileSize);
@@ -37,6 +38,7 @@ private slots:
     void transferError(QString errorString);
     void finished();
     void resetThreadFlag();
+    void cancleReceiver();
 
 protected:
     void incomingConnection(qintptr socketDescriptor);
