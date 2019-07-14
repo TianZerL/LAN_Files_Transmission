@@ -1,4 +1,4 @@
-#ifndef ADVANCEDMODE_WIDGET_H
+﻿#ifndef ADVANCEDMODE_WIDGET_H
 #define ADVANCEDMODE_WIDGET_H
 
 #include <QWidget>
@@ -43,6 +43,8 @@ private slots:
 
     void on_pick_pb_clicked();
 
+    void on_cancle_pb_client_clicked();
+
 private:
     void getFileList(const QString &path);
 
@@ -63,6 +65,7 @@ private:
     QString src_fileName;
     qint64 src_pathSize,tosend_pathSize;
     qint64 src_fileSize,sended_fileSize,tosend_fileSize;
+    int i;
 };
 
 #endif // ADVANCEDMODE_WIDGET_H

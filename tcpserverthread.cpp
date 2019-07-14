@@ -1,4 +1,4 @@
-#include "tcpserverthread.h"
+﻿#include "tcpserverthread.h"
 #include <QDataStream>
 #include <QHostAddress>
 
@@ -47,7 +47,6 @@ void TcpServerThread::readyConfirm()
     if(headInfo == "##dir##")
     {
         in >> fileCount;
-        qDebug()<<fileCount;
         recv_pathName = recv_fileName;
         recv_pathSize = recv_fileSize;
     }
@@ -66,7 +65,7 @@ void TcpServerThread::confirm(bool signal,QDir _recvPath)
     {
         if(headInfo == "##dir##")
         {
-            recvPath=QDir(_recvPath.path()+recv_pathName);
+            recvPath=QDir(_recvPath.path()+"/"+recv_pathName);
             if(!recvPath.exists())
                 recvPath.mkpath(recvPath.path());
             remaining_pathSize = recv_pathSize;
@@ -97,26 +96,23 @@ void TcpServerThread::confirm(bool signal,QDir _recvPath)
 
 void TcpServerThread::readData()
 {
+    disconnect(socket,SIGNAL(readyRead()),this,SLOT(readData()));
     if(headInfo == "##dir##")
     {
-        disconnect(socket,SIGNAL(readyRead()),this,SLOT(readData()));
-
         for (int i = 0 ; i<fileCount ; i++)
         {
             qint64 tempSize;
             QString _fileName,_filePath;
             qint64 _fileSize;
-            socket->waitForReadyRead();
-            recv_fileCache=socket->readAll();
-            QDataStream in(recv_fileCache);
+            QDataStream in(socket);
             in >> _fileName >> _filePath >> _fileSize;
-            QDir currPath(recvPath.path()+_filePath);
+            QDir currPath(recvPath.path()+"/"+_filePath);
             recv_fileSize = remaining_fileSize = _fileSize;
             if(!currPath.exists())
                 currPath.mkpath(currPath.path());
-            recvFile = new QFile(currPath.path()+_fileName);
+            recvFile = new QFile(currPath.path()+"/"+_fileName);
             if(recvFile->exists())
-                recvFile->setFileName(recvPath.path()+"/recv_"+recv_fileName);
+                recvFile->setFileName(currPath.path()+"/recv_"+_fileName);
             if(!recvFile->open(QIODevice::WriteOnly))
             {
                 socket->close();
@@ -124,46 +120,43 @@ void TcpServerThread::readData()
                 recvFile=nullptr;
                 break;
             }
-            recv_fileCache.resize(0);
-            socket->write("##fine##");
-            socket->waitForReadyRead();
+            socket->write("##ready##");
             while(remaining_fileSize >0)
             {
+                socket->waitForReadyRead();
                 recv_fileCache=socket->readAll();
                 tempSize=recvFile->write(recv_fileCache);
                 remaining_fileSize-= tempSize;
                 remaining_pathSize-= tempSize;
                 recvFile->flush();
                 emit progress(int((1.0-(double(remaining_pathSize)/double(recv_pathSize)))*100));
-                recvFile->waitForBytesWritten(-1);
             }
             recvFile->close();
             delete recvFile;
             recvFile=nullptr;
+            socket->write("##next##");
+            if(i == fileCount-1)
+                break;
+            socket->waitForReadyRead();
         }
-        socket->close();
-        emit progress(0);
-        emit readFinished();
     }
     else
     {
-        if(remaining_fileSize >0)
+        while(remaining_fileSize >0)
         {
+            socket->waitForReadyRead();
             recv_fileCache=socket->readAll();
             remaining_fileSize-=recvFile->write(recv_fileCache);
             recvFile->flush();
             emit progress(int((1.0-(double(remaining_fileSize)/double(recv_fileSize)))*100));
         }
-        if(remaining_fileSize <= 0)
-        {
-            recvFile->close();
-            delete recvFile;
-            recvFile=nullptr;
-            socket->close();
-            emit progress(0);
-            emit readFinished();
-        }
+        recvFile->close();
+        delete recvFile;
+        recvFile=nullptr;
     }
+    socket->close();
+    emit progress(0);
+    emit readFinished();
 }
 
 void TcpServerThread::getError()

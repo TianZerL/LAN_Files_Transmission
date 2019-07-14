@@ -1,10 +1,11 @@
-#ifndef TCPSERVERTHREAD_H
+﻿#ifndef TCPSERVERTHREAD_H
 #define TCPSERVERTHREAD_H
 
 #include <QObject>
 #include <QFile>
 #include <QDir>
 #include <QTcpSocket>
+#include "config.h"
 
 class TcpServerThread : public QObject
 {
@@ -33,7 +34,6 @@ private:
     QFile *recvFile;
     QDir recvPath;
     QByteArray recv_fileCache;
-    //QFileInfoList recv_fileList;
     QString headInfo,recv_fileName,recv_pathName;
     qint64 recv_fileSize, remaining_fileSize,recv_pathSize, remaining_pathSize;
     int  fileCount;

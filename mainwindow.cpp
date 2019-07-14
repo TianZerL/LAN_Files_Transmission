@@ -64,12 +64,13 @@ void MainWindow::client_Error()
 
 void MainWindow::server_Error(QString errorString)
 {
-    QMessageBox::warning(this,tr("Server"),errorString);
     ui->process_server->reset();
+    QMessageBox::warning(this,tr("Server"),errorString);
 }
 
 void MainWindow::server_connection_Error()
 {
+    ui->process_server->reset();
     QMessageBox::warning(this,tr("Server"),tcpServer->errorString());
 }
 

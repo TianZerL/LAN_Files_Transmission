@@ -1,4 +1,4 @@
-#include "tcpserver.h"
+﻿#include "tcpserver.h"
 #include "tcpserverthread.h"
 #include <QThread>
 #include <QMessageBox>

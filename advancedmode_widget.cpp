@@ -1,8 +1,9 @@
-#include "advancedmode_widget.h"
+﻿#include "advancedmode_widget.h"
 #include "ui_advancedmode_widget.h"
 #include <QNetworkConfigurationManager>
 #include <QMessageBox>
 #include <QDebug>
+#include <QRegExpValidator>
 
 advancedmode_widget::advancedmode_widget(QWidget *parent) :
     QWidget(parent),
@@ -14,9 +15,15 @@ advancedmode_widget::advancedmode_widget(QWidget *parent) :
     currFile = nullptr;
 
     ui->ipaddress_le->setReadOnly(true);
-    ui->ipaddress_le->setText(QHostInfo::fromName(QHostInfo::localHostName()).addresses()[1].toString());
+    ui->ipaddress_le->setText(QHostInfo::fromName(QHostInfo::localHostName()).addresses()[0].toString());
     ui->hostname_le->setReadOnly(true);
     ui->hostname_le->setText(QHostInfo::localHostName());
+    //限制输入类型，利用正则表达式
+    ui->ip_le->setValidator(new QRegExpValidator(QRegExp("^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-4]|2[0-4][0-9]|[01]?[0-9][0-9]?)&"),ui->ip_le));
+    ui->port_le->setValidator(new QRegExpValidator(QRegExp("^(?:[0-9]|[1-9]\\d|[1-9]\\d{2}|[1-9]\\d{3}|[1-5]\\d{4}|6[0-4]\\d{3}|65[0-4]\\d{2}|655[0-2]\\d|6553[0-5])$"),ui->port_le));
+    ui->port_le_server->setValidator(new QRegExpValidator(QRegExp("^(?:[0-9]|[1-9]\\d|[1-9]\\d{2}|[1-9]\\d{3}|[1-5]\\d{4}|6[0-4]\\d{3}|65[0-4]\\d{2}|655[0-2]\\d|6553[0-5])$"),ui->port_le_server));
+    ui->cancle_pb->setEnabled(false);
+    ui->cancle_pb_client->setEnabled(false);
 
     tcpClient = new QTcpSocket(this);
     tcpServer = new TcpServer(this);
@@ -77,7 +84,6 @@ void advancedmode_widget::send_Head()
     tosend_pathSize = src_pathSize;
     //设置输出流文件版本，初始化文件头（文件头，文件大小）
     out.setVersion(QDataStream::Qt_5_13);
-    qDebug()<<srcFileList.length();
     out<<QString("##dir##")<<srcPath.dirName()<<src_pathSize<<srcFileList.length();
     //发送文件头数据
     tcpClient->write(src_fileCache);
@@ -98,19 +104,21 @@ void advancedmode_widget::confirm_Head()
 
 void advancedmode_widget::start_send_Data()
 {
+    disconnect(tcpClient,SIGNAL(readyRead()),this,SLOT(confirm_Head()));
     qint64 sizeOfSend = 0;
     sended_fileSize = 0;
-    for (QFileInfo srcFile : srcFileList)
+    for (i = 0; i < srcFileList.size(); i++)
     {
-        QString _fileName=srcFile.fileName(),_filePath=srcFile.canonicalPath();
-        qint64 _fileSize = srcFile.size();
+        QString _fileName=srcFileList[i].fileName(),_filePath=srcFileList[i].canonicalPath().mid(srcPath.path().length()+1);
+        qint64 _fileSize = srcFileList[i].size();
+
         QDataStream out(&src_fileCache,QIODevice::WriteOnly);
         out.setVersion(QDataStream::Qt_5_13);
         out << _fileName << _filePath << _fileSize;
         tcpClient->write(src_fileCache);
+
         src_fileCache.resize(0);
-        disconnect(tcpClient,SIGNAL(readyRead()),this,SLOT(confirm_Head()));
-        currFile = new QFile(srcFile.filePath());
+        currFile = new QFile(srcFileList[i].filePath());
         if(!currFile->open(QIODevice::ReadOnly))
         {
             QMessageBox::critical(this,tr("Client"),tr("Faild to open file"));
@@ -124,8 +132,6 @@ void advancedmode_widget::start_send_Data()
         ui->process->reset();
         ui->cancle_pb_client->setEnabled(true);
         tcpClient->waitForReadyRead();
-        QApplication::processEvents();
-        tcpClient->readAll();
         while(tosend_fileSize > 0)
         {
             src_fileCache=currFile->read(qMin(tosend_fileSize,blockSize));        //将数据块写入缓存
@@ -140,6 +146,7 @@ void advancedmode_widget::start_send_Data()
         currFile->close();   //关闭源文件
         delete currFile; //delete防止内存泄漏
         currFile=nullptr;
+        tcpClient->waitForReadyRead();
     }
     ui->process->reset();
     tcpClient->close();
@@ -147,29 +154,6 @@ void advancedmode_widget::start_send_Data()
     QMessageBox::information(this,tr("Client"),tr("Successful!"));
     ui->send_pb->setEnabled(true);
     ui->cancle_pb_client->setEnabled(false);
-//    qint64 sizeOfSend = 0;
-//    sended_fileSize = 0;
-//    ui->process->reset();
-//    ui->cancle_pb_client->setEnabled(true);
-//    while(tosend_fileSize>0)
-//    {
-//        src_fileCache=srcFile->read(qMin(tosend_fileSize,blockSize));        //将数据块写入缓存
-//        sizeOfSend = tcpClient->write(src_fileCache);
-//        tosend_fileSize -= sizeOfSend;
-//        sended_fileSize += sizeOfSend;
-//        src_fileCache.resize(0);
-//        ui->process->setValue(int(double(sended_fileSize)*100/double(src_fileSize)));   //设置进度条
-//        tcpClient->waitForBytesWritten();
-//        QApplication::processEvents();
-//    }
-//    ui->process->reset();//重置进度条
-//    srcFile->close();   //关闭源文件
-//    delete srcFile; //delete防止内存泄漏
-//    srcFile=nullptr;
-//    tcpClient->close(); //关闭tcp客户端
-//    QMessageBox::information(this,tr("Client"),tr("Successful!"));
-//    ui->send_pb->setEnabled(true);
-//    ui->cancle_pb_client->setEnabled(false);
 }
 
 void advancedmode_widget::client_Error()
@@ -178,6 +162,7 @@ void advancedmode_widget::client_Error()
     if(tcpClient->isOpen())
         tcpClient->close();
     ui->send_pb->setEnabled(true);
+    ui->process->reset();
 }
 
 void advancedmode_widget::getFileList(const QString &path)
@@ -223,4 +208,13 @@ void advancedmode_widget::on_send_pb_clicked()
 void advancedmode_widget::on_pick_pb_clicked()
 {
     ui->path_le->setText(QFileDialog::getExistingDirectory());
+}
+
+void advancedmode_widget::on_cancle_pb_client_clicked()
+{
+    if(QMessageBox::warning(this,"Waring","Are you sure to cancle?",QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::No)
+        return;
+    tcpClient->disconnectFromHost();
+    tosend_fileSize = 0;
+    i = srcFileList.size();
 }
