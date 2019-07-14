@@ -87,12 +87,12 @@ void MainWindow::send_Head()
         delete srcFile; //delete防止内存泄漏
         srcFile=nullptr;
         return;
-    };
+    }
     //取得待发送文件大小
     tosend_fileSize = src_fileSize = srcFile->size();
     //设置输出流文件版本，初始化文件头（文件头，文件大小）
     out.setVersion(QDataStream::Qt_5_13);
-    out<<QString("##head##")<<srcFileInfo.fileName()<<src_fileSize;
+    out<<QString("##file##")<<srcFileInfo.fileName()<<src_fileSize;
     //发送文件头数据
     tcpClient->write(src_fileCache);
     src_fileCache.resize(0);

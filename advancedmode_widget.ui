@@ -17,9 +17,9 @@
    <item row="1" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
-     <widget class="QWidget" name="Info">
+     <widget class="QWidget" name="info">
       <attribute name="title">
        <string>Info</string>
       </attribute>
@@ -86,15 +86,221 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tab_2">
+     <widget class="QWidget" name="server">
       <attribute name="title">
-       <string>Tab 2</string>
+       <string>Server</string>
       </attribute>
+      <layout class="QGridLayout" name="gridLayout_5">
+       <item row="0" column="0">
+        <layout class="QGridLayout" name="gridLayout_4">
+         <item row="0" column="0">
+          <widget class="QLabel" name="port_lb_server">
+           <property name="text">
+            <string>Port   </string>
+           </property>
+           <property name="buddy">
+            <cstring>port_le_server</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLineEdit" name="port_le_server"/>
+         </item>
+        </layout>
+       </item>
+       <item row="1" column="0">
+        <layout class="QGridLayout" name="file_path_server">
+         <item row="0" column="0">
+          <widget class="QLabel" name="path_lb_server">
+           <property name="text">
+            <string>path   </string>
+           </property>
+           <property name="buddy">
+            <cstring>path_le_server</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLineEdit" name="path_le_server"/>
+         </item>
+         <item row="0" column="2">
+          <widget class="QPushButton" name="pick_pb_server">
+           <property name="text">
+            <string>Pick</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="2" column="0">
+        <layout class="QGridLayout" name="gridLayout_3">
+         <item row="0" column="0">
+          <widget class="QPushButton" name="listen_pb">
+           <property name="text">
+            <string>Listen</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <spacer name="horizontalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>371</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="0" column="2">
+          <widget class="QPushButton" name="cancle_pb">
+           <property name="text">
+            <string>Cancle</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="client">
+      <attribute name="title">
+       <string>Client</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_6">
+       <item row="2" column="0">
+        <layout class="QGridLayout" name="pro">
+         <item row="0" column="0">
+          <widget class="QLabel" name="pro_lb">
+           <property name="text">
+            <string>Pro    </string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QProgressBar" name="process">
+           <property name="value">
+            <number>0</number>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="1" column="0">
+        <layout class="QGridLayout" name="port">
+         <item row="0" column="0">
+          <widget class="QLabel" name="port_lb">
+           <property name="text">
+            <string>Port   </string>
+           </property>
+           <property name="buddy">
+            <cstring>port_le</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLineEdit" name="port_le"/>
+         </item>
+        </layout>
+       </item>
+       <item row="4" column="0">
+        <layout class="QGridLayout" name="buttom">
+         <item row="0" column="0">
+          <widget class="QPushButton" name="send_pb">
+           <property name="text">
+            <string>Send</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <spacer name="horizontalSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="0" column="2">
+          <widget class="QPushButton" name="cancle_pb_client">
+           <property name="text">
+            <string>Cancle</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="0" column="0">
+        <layout class="QGridLayout" name="ip">
+         <item row="1" column="0">
+          <widget class="QLabel" name="ip_lb">
+           <property name="text">
+            <string>IP     </string>
+           </property>
+           <property name="buddy">
+            <cstring>ip_le</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QLineEdit" name="ip_le"/>
+         </item>
+        </layout>
+       </item>
+       <item row="3" column="0">
+        <layout class="QGridLayout" name="path_path">
+         <item row="0" column="0">
+          <widget class="QLabel" name="path_lb">
+           <property name="text">
+            <string>Path   </string>
+           </property>
+           <property name="buddy">
+            <cstring>path_le</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <widget class="QPushButton" name="pick_pb">
+           <property name="text">
+            <string>Pick</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLineEdit" name="path_le"/>
+         </item>
+        </layout>
+       </item>
+      </layout>
      </widget>
     </widget>
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>ipaddress_le</tabstop>
+  <tabstop>hostname_le</tabstop>
+  <tabstop>lantest_pb</tabstop>
+  <tabstop>wantest_pb</tabstop>
+  <tabstop>port_le_server</tabstop>
+  <tabstop>path_le_server</tabstop>
+  <tabstop>pick_pb_server</tabstop>
+  <tabstop>listen_pb</tabstop>
+  <tabstop>cancle_pb</tabstop>
+  <tabstop>ip_le</tabstop>
+  <tabstop>port_le</tabstop>
+  <tabstop>path_le</tabstop>
+  <tabstop>pick_pb</tabstop>
+  <tabstop>send_pb</tabstop>
+  <tabstop>cancle_pb_client</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

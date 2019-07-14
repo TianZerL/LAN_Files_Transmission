@@ -33,4 +33,6 @@ private:
     QJsonDocument configJSONDoc;
 };
 
+extern Config config;
+
 #endif // CONFIG_H

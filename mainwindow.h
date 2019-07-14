@@ -41,8 +41,6 @@ private slots:
 
     void confirm_Head();
 
-    void start_send_Data();
-
     void setProgressBar(int value);
 
     void on_listen_pb_clicked();
@@ -63,13 +61,15 @@ protected:
     void closeEvent(QCloseEvent *event);
 
 private:
+    void start_send_Data();
+
+private:
     Ui::MainWindow *ui;
     QTcpSocket *tcpClient;
     TcpServer *tcpServer;
     IP_Completer *ipCompleter;
 
     qint64 blockSize;  //单次发送数据大小
-    qint64 diskCacheSize;
 
     QFile *srcFile;
     QFileInfo srcFileInfo;
@@ -77,7 +77,6 @@ private:
     QString src_fileName;
     qint64 src_fileSize,sended_fileSize,tosend_fileSize;
 
-    Config config;
 };
 
 #endif // MAINWINDOW_H
