@@ -25,6 +25,8 @@ public slots:
     void confirm(bool signal,QDir _recvPath);
     void readData();
 
+    void getError(QAbstractSocket::SocketError socketError);
+
 private:
     QTcpSocket *socket;
     qintptr socketDescriptor;

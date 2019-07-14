@@ -3,15 +3,16 @@
 #include <QThread>
 #include <QMessageBox>
 
-TcpServer::TcpServer(QObject *parent):
-    QTcpServer (parent)
+TcpServer::TcpServer(QObject *parent, ServerMode _serverMode, PermissionMode _permissionMode):
+    QTcpServer (parent), serverMode(_serverMode), permissionMode(_permissionMode)
 {
     qRegisterMetaType<QDir>("QDir");
+    threadFlag = false;
 }
 
 void TcpServer::confirmForReadData(QString IP, QString fileName, qint64 fileSize)
 {
-    if(QMessageBox::information(nullptr,tr("Server"),"from: "+IP+"\nFile name: "+fileName+"\nFile size: "+QString::number(fileSize/1000000.0)+"mb",QMessageBox::Yes | QMessageBox::No,QMessageBox::No) == QMessageBox::No)
+    if(permissionMode == NeedConfirmation && QMessageBox::information(nullptr,tr("Server"),"from: "+IP+"\nFile name: "+fileName+"\nFile size: "+QString::number(fileSize/1000000.0)+"mb",QMessageBox::Yes | QMessageBox::No,QMessageBox::No) == QMessageBox::No)
         emit confirmResult(false,path);
     else
         emit confirmResult(true,path);
@@ -34,6 +35,8 @@ void TcpServer::finished()
 
 void TcpServer::incomingConnection(qintptr socketDescriptor)
 {
+    if(threadFlag)
+        return;
     TcpServerThread *thread = new TcpServerThread(socketDescriptor);    //新线程
     QThread *threadContainer = new QThread(this);   //线程容器
     thread->moveToThread(threadContainer);  //装入容器
@@ -43,12 +46,15 @@ void TcpServer::incomingConnection(qintptr socketDescriptor)
     connect(this,SIGNAL(confirmResult(bool,QDir)),thread,SLOT(confirm(bool,QDir))); //确认请求结果
     connect(thread,SIGNAL(progress(int)),this,SLOT(progressBarValueForUi(int)));    //更新进度条
     connect(thread,SIGNAL(error(QTcpSocket::SocketError)),this,SLOT(transferError(QTcpSocket::SocketError)));   //错误信息
+    connect(thread,SIGNAL(error(QTcpSocket::SocketError)),threadContainer,SLOT(quit()));    //确保推出线程
     connect(thread,SIGNAL(refuseConnection()),threadContainer,SLOT(quit()));    //确保推出线程
     connect(thread,SIGNAL(readFinished()),threadContainer,SLOT(quit()));    //确保推出线程
     connect(thread,SIGNAL(readFinished()),this,SLOT(finished()));   //读取完成后进行提示
     connect(threadContainer,SIGNAL(started()),thread,SLOT(inil())); //调用新线程
     threadContainer->start();   //开启新线程
     emit newConnection();   //发送新连接信号
+    if(serverMode == SingleThread)
+        threadFlag = true;
 }
 
 QDir TcpServer::getPath() const

@@ -31,7 +31,6 @@ bool Config::load()
     defaultRecvPath=configJSON["default_receive_path"].toString();
     diskCacheSize=configJSON["disk_cache_size"].toInt();
     config.close();
-
     return true;
 }
 

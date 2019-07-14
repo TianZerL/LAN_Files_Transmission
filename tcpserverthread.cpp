@@ -33,11 +33,8 @@ TcpServerThread::~TcpServerThread()
 void TcpServerThread::inil()
 {
     socket = new QTcpSocket;
-    if(!socket->setSocketDescriptor(socketDescriptor))
-    {
-        emit error(socket->error());
-        return;
-    }
+    connect(socket,SIGNAL(error(QAbstractSocket::SocketError)),this,SLOT(getError(QAbstractSocket::SocketError)));
+    socket->setSocketDescriptor(socketDescriptor);
     connect(socket,SIGNAL(readyRead()),this,SLOT(readyConfirm()));
 }
 
@@ -95,4 +92,9 @@ void TcpServerThread::readData()
         emit progress(0);
         emit readFinished();
     }
+}
+
+void TcpServerThread::getError(QAbstractSocket::SocketError socketError)
+{
+    emit error(socketError);
 }

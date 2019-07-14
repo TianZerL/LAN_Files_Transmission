@@ -113,9 +113,9 @@
           </spacer>
          </item>
          <item row="0" column="2">
-          <widget class="QPushButton" name="sycn_pb">
+          <widget class="QPushButton" name="cancle_pb_client">
            <property name="text">
-            <string>Sync</string>
+            <string>Cancle</string>
            </property>
           </widget>
          </item>
@@ -291,7 +291,7 @@
   <tabstop>pick_pb</tabstop>
   <tabstop>send_pb</tabstop>
   <tabstop>file_le</tabstop>
-  <tabstop>sycn_pb</tabstop>
+  <tabstop>cancle_pb_client</tabstop>
   <tabstop>port_le_server</tabstop>
   <tabstop>pick_pb_server</tabstop>
   <tabstop>path_le_server</tabstop>

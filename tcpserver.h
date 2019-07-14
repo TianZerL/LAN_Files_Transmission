@@ -9,7 +9,16 @@ class TcpServer : public QTcpServer
 {
     Q_OBJECT
 public:
-    explicit TcpServer(QObject *parent = nullptr);
+    enum ServerMode
+    {
+        SingleThread,MultiThread
+    };
+    enum PermissionMode
+    {
+        NeedConfirmation,AlwaysAccept
+    };
+public:
+    explicit TcpServer(QObject *parent = nullptr, ServerMode _serverMode = SingleThread, PermissionMode _permissionMode = NeedConfirmation);
 
     QDir getPath() const;
     void setPath(const QDir &value);
@@ -30,6 +39,9 @@ protected:
 
 private:
     QDir path;
+    bool threadFlag;
+    ServerMode serverMode;
+    PermissionMode permissionMode;
 };
 
 #endif // TCPSERVER_H
