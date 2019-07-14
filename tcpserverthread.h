@@ -33,8 +33,10 @@ private:
     QFile *recvFile;
     QDir recvPath;
     QByteArray recv_fileCache;
-    QString headInfo,recv_fileName;
-    qint64 recv_fileSize, remaining_fileSize;
+    //QFileInfoList recv_fileList;
+    QString headInfo,recv_fileName,recv_pathName;
+    qint64 recv_fileSize, remaining_fileSize,recv_pathSize, remaining_pathSize;
+    int  fileCount;
 };
 
 #endif // TCPSERVERTHREAD_H

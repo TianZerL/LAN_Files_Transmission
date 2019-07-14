@@ -77,7 +77,8 @@ void advancedmode_widget::send_Head()
     tosend_pathSize = src_pathSize;
     //设置输出流文件版本，初始化文件头（文件头，文件大小）
     out.setVersion(QDataStream::Qt_5_13);
-    out<<QString("##dir##")<<srcPath.dirName()<<src_pathSize;
+    qDebug()<<srcFileList.length();
+    out<<QString("##dir##")<<srcPath.dirName()<<src_pathSize<<srcFileList.length();
     //发送文件头数据
     tcpClient->write(src_fileCache);
     src_fileCache.resize(0);
@@ -101,6 +102,14 @@ void advancedmode_widget::start_send_Data()
     sended_fileSize = 0;
     for (QFileInfo srcFile : srcFileList)
     {
+        QString _fileName=srcFile.fileName(),_filePath=srcFile.canonicalPath();
+        qint64 _fileSize = srcFile.size();
+        QDataStream out(&src_fileCache,QIODevice::WriteOnly);
+        out.setVersion(QDataStream::Qt_5_13);
+        out << _fileName << _filePath << _fileSize;
+        tcpClient->write(src_fileCache);
+        src_fileCache.resize(0);
+        disconnect(tcpClient,SIGNAL(readyRead()),this,SLOT(confirm_Head()));
         currFile = new QFile(srcFile.filePath());
         if(!currFile->open(QIODevice::ReadOnly))
         {
@@ -114,6 +123,9 @@ void advancedmode_widget::start_send_Data()
         tosend_fileSize = currFile->size();
         ui->process->reset();
         ui->cancle_pb_client->setEnabled(true);
+        tcpClient->waitForReadyRead();
+        QApplication::processEvents();
+        tcpClient->readAll();
         while(tosend_fileSize > 0)
         {
             src_fileCache=currFile->read(qMin(tosend_fileSize,blockSize));        //将数据块写入缓存
@@ -131,6 +143,7 @@ void advancedmode_widget::start_send_Data()
     }
     ui->process->reset();
     tcpClient->close();
+    connect(tcpClient,SIGNAL(readyRead()),this,SLOT(confirm_Head()));
     QMessageBox::information(this,tr("Client"),tr("Successful!"));
     ui->send_pb->setEnabled(true);
     ui->cancle_pb_client->setEnabled(false);
