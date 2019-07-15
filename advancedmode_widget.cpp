@@ -16,7 +16,11 @@ advancedmode_widget::advancedmode_widget(QWidget *parent) :
     cancleFlag = false;
 
     ui->ipaddress_le->setReadOnly(true);
-    ui->ipaddress_le->setText(QHostInfo::fromName(QHostInfo::localHostName()).addresses()[0].toString());
+#ifdef Q_OS_WIN32
+    ui->ipaddress_le->setText(QHostInfo::fromName(QHostInfo::localHostName()).addresses().at(1).toString());
+#else
+    ui->ipaddress_le->setText(QHostInfo::fromName(QHostInfo::localHostName()).addresses().at(0).toString());
+#endif
     ui->hostname_le->setReadOnly(true);
     ui->hostname_le->setText(QHostInfo::localHostName());
     //限制输入类型，利用正则表达式
@@ -115,8 +119,8 @@ void advancedmode_widget::start_send_Data()
     sended_fileSize = 0;
     for (i = 0; i < srcFileList.size(); i++)
     {
-        QString _fileName=srcFileList[i].fileName(),_filePath=srcFileList[i].canonicalPath().mid(srcPath.path().length()+1);
-        qint64 _fileSize = srcFileList[i].size();
+        QString _fileName=srcFileList.at(i).fileName(),_filePath=srcFileList.at(i).canonicalPath().mid(srcPath.path().length()+1);
+        qint64 _fileSize = srcFileList.at(i).size();
 
         QDataStream out(&src_fileCache,QIODevice::WriteOnly);
         out.setVersion(QDataStream::Qt_5_13);
@@ -124,7 +128,7 @@ void advancedmode_widget::start_send_Data()
         tcpClient->write(src_fileCache);
 
         src_fileCache.resize(0);
-        currFile = new QFile(srcFileList[i].filePath());
+        currFile = new QFile(srcFileList.at(i).filePath());
         if(!currFile->open(QIODevice::ReadOnly))
         {
             QMessageBox::critical(this,tr("Client"),tr("Faild to open file"));

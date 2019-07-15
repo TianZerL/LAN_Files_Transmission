@@ -47,7 +47,7 @@ bool IP_Completer::loadHistory()
         return false;
     ipListJSON = ipListJSONDoc.array();
     for (int i=0;i<ipListJSON.size();i++)
-        ipList<<ipListJSON[i].toString();
+        ipList<<ipListJSON.at(i).toString();
     ipHistory.close();
     return true;
 }
