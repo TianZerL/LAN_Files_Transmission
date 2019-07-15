@@ -42,7 +42,6 @@ advancedmode_widget::advancedmode_widget(QWidget *parent) :
     connect(tcpClient,SIGNAL(readyRead()),this,SLOT(confirm_Head()));
     connect(tcpClient,SIGNAL(error(QAbstractSocket::SocketError)),this,SLOT(client_Error()));
     connect(tcpServer,SIGNAL(error(QString)),this,SLOT(server_Error(QString)));
-    //connect(tcpServer,SIGNAL(ProgressBarValue(int)),this,SLOT(setProgressBar(int)));
     connect(tcpServer,SIGNAL(newConnection()),this,SLOT(creat_Connection()));   //连接请求处理
     connect(tcpServer,SIGNAL(acceptError(QAbstractSocket::SocketError)),this,SLOT(server_connection_Error()));
 

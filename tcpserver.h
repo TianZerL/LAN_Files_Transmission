@@ -30,6 +30,7 @@ signals:
     void confirmResult(bool,QDir);
     void ProgressBarValue(int);
     void error(QString);
+    void closeDialog();
 
 private slots:
     void confirmForReadData(QString IP,QString fileName,qint64 fileSize);

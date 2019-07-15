@@ -16,6 +16,14 @@ void TcpServer::confirmForReadData(QString IP, QString fileName, qint64 fileSize
         emit confirmResult(false,path);
     else
         emit confirmResult(true,path);
+    if(serverMode == MultiThread)
+    {
+        QMessageBox *recvDialog = new QMessageBox(QMessageBox::Information,"Receiving...","Receiveing: "+fileName,QMessageBox::NoButton,nullptr);
+        recvDialog->setModal(false);
+        recvDialog->setAttribute(Qt::WA_DeleteOnClose);
+        connect(this,SIGNAL(closeDialog()),recvDialog,SLOT(close()));
+        recvDialog->show();
+    }
 }
 
 void TcpServer::progressBarValueForUi(int value)
@@ -30,6 +38,8 @@ void TcpServer::transferError(QString errorString)
 
 void TcpServer::finished()
 {
+    if(serverMode == MultiThread)
+        emit closeDialog();
     if(!cancleFlag)
         QMessageBox::information(nullptr,tr("Server"),tr("Receiving file finished!\nPath:")+path.path());
 }
@@ -42,6 +52,8 @@ void TcpServer::resetThreadFlag()
 void TcpServer::cancleReceiver()
 {
     cancleFlag = true;
+    if(serverMode == MultiThread)
+        emit closeDialog();
     QMessageBox::information(nullptr,tr("Server"),tr("cancled"));
 }
 
