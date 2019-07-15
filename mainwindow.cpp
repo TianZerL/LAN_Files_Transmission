@@ -3,7 +3,6 @@
 #include <QValidator>
 #include <QMessageBox>
 #include <QHostAddress>
-#include <QDebug>
 #include <QStandardPaths>
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -32,6 +31,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(tcpServer,SIGNAL(newConnection()),this,SLOT(creat_Connection()));   //连接请求处理
     connect(tcpServer,SIGNAL(acceptError(QAbstractSocket::SocketError)),this,SLOT(server_connection_Error()));
     connect(&config,SIGNAL(changeSetting()),this,SLOT(changedSetting()));
+    connect(&config,SIGNAL(changeLanguage()),this,SLOT(language()));
 
     ui->port_le->setText(config.defaultPort);
     ui->port_le_server->setText(config.defaultPort);
@@ -225,7 +225,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::on_cancle_pb_client_clicked()
 {
-    if(QMessageBox::warning(this,"Waring","Are you sure to cancle?",QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::No)
+    if(QMessageBox::warning(this,tr("Waring"),tr("Are you sure to cancle?"),QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::No)
         return;
     tcpClient->disconnectFromHost();
     tosend_fileSize = 0;
@@ -247,4 +247,9 @@ void MainWindow::on_actionSetting_triggered()
 void MainWindow::changedSetting()
 {
     tcpServer->setPermissionMode(TcpServer::PermissionMode(config.permissionMode));
+}
+
+void MainWindow::language()
+{
+    ui->retranslateUi(this);
 }

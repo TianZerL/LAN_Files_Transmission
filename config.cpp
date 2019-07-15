@@ -10,6 +10,7 @@ Config::Config(QObject *parent) : QObject(parent),config("config.json")
         configJSON.insert("default_port","6868");
         configJSON.insert("disk_cache_size",4096);
         configJSON.insert("permission_mode",0);
+        configJSON.insert("language","en");
         if(!config.open(QIODevice::WriteOnly))
             throw QString("Faild to creat config.json");
         configJSONDoc.setObject(configJSON);
@@ -37,6 +38,7 @@ bool Config::load()
     defaultRecvPath=configJSON["default_receive_path"].toString();
     diskCacheSize=configJSON["disk_cache_size"].toInt();
     permissionMode=configJSON["permission_mode"].toInt();
+    language=configJSON["language"].toString();
     config.close();
     return true;
 }
@@ -47,6 +49,7 @@ bool Config::save()
     configJSON.insert("default_port",defaultPort);
     configJSON.insert("disk_cache_size",diskCacheSize);
     configJSON.insert("permission_mode",permissionMode);
+    configJSON.insert("language",language);
     if(!config.open(QIODevice::WriteOnly))
         return false;
     configJSONDoc.setObject(configJSON);
@@ -58,4 +61,9 @@ bool Config::save()
 void Config::settingChanged()
 {
     emit changeSetting();
+}
+
+void Config::languageChanged()
+{
+    emit changeLanguage();
 }

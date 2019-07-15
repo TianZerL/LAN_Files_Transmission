@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>Advance Mode</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="icon.qrc">
+    <normaloff>:/icon/LFT.ico</normaloff>:/icon/LFT.ico</iconset>
+  </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="1" column="0">
     <widget class="QTabWidget" name="tabWidget">
@@ -20,8 +24,15 @@
       <number>0</number>
      </property>
      <widget class="QWidget" name="info">
+      <attribute name="icon">
+       <iconset resource="icon.qrc">
+        <normaloff>:/icon/info.ico</normaloff>:/icon/info.ico</iconset>
+      </attribute>
       <attribute name="title">
        <string>Info</string>
+      </attribute>
+      <attribute name="toolTip">
+       <string>Show info for your network</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_2">
        <item row="0" column="0">
@@ -87,8 +98,15 @@
       </layout>
      </widget>
      <widget class="QWidget" name="server">
+      <attribute name="icon">
+       <iconset resource="icon.qrc">
+        <normaloff>:/icon/server.ico</normaloff>:/icon/server.ico</iconset>
+      </attribute>
       <attribute name="title">
        <string>Server</string>
+      </attribute>
+      <attribute name="toolTip">
+       <string>Server that support mulit-thread receive</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_5">
        <item row="0" column="0">
@@ -166,8 +184,15 @@
       </layout>
      </widget>
      <widget class="QWidget" name="client">
+      <attribute name="icon">
+       <iconset resource="icon.qrc">
+        <normaloff>:/icon/folder-plus.ico</normaloff>:/icon/folder-plus.ico</iconset>
+      </attribute>
       <attribute name="title">
        <string>Client</string>
+      </attribute>
+      <attribute name="toolTip">
+       <string>Client for send folder</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_6">
        <item row="2" column="0">
@@ -301,6 +326,8 @@
   <tabstop>send_pb</tabstop>
   <tabstop>cancle_pb_client</tabstop>
  </tabstops>
- <resources/>
+ <resources>
+  <include location="icon.qrc"/>
+ </resources>
  <connections/>
 </ui>

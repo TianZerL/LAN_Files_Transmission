@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>LAN Files Transfer</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="icon.qrc">
+    <normaloff>:/icon/LFT.ico</normaloff>:/icon/LFT.ico</iconset>
+  </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout_2">
     <item row="0" column="0">
@@ -258,8 +262,9 @@
     </rect>
    </property>
    <widget class="QMenu" name="menu">
-    <property name="title">
-     <string>menu</string>
+    <property name="icon">
+     <iconset resource="icon.qrc">
+      <normaloff>:/icon/menu.ico</normaloff>:/icon/menu.ico</iconset>
     </property>
     <addaction name="actionAdvance"/>
     <addaction name="actionSetting"/>
@@ -269,16 +274,28 @@
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionAdvance">
+   <property name="icon">
+    <iconset resource="icon.qrc">
+     <normaloff>:/icon/more.ico</normaloff>:/icon/more.ico</iconset>
+   </property>
    <property name="text">
     <string>Advance</string>
    </property>
   </action>
   <action name="actionSetting">
+   <property name="icon">
+    <iconset resource="icon.qrc">
+     <normaloff>:/icon/settings.ico</normaloff>:/icon/settings.ico</iconset>
+   </property>
    <property name="text">
     <string>Setting</string>
    </property>
   </action>
   <action name="actionQuit">
+   <property name="icon">
+    <iconset resource="icon.qrc">
+     <normaloff>:/icon/x.ico</normaloff>:/icon/x.ico</iconset>
+   </property>
    <property name="text">
     <string>Quit</string>
    </property>
@@ -298,7 +315,9 @@
   <tabstop>listen_pb</tabstop>
   <tabstop>cancle_pb</tabstop>
  </tabstops>
- <resources/>
+ <resources>
+  <include location="icon.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>actionQuit</sender>

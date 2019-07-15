@@ -18,7 +18,7 @@ void TcpServer::confirmForReadData(QString IP, QString fileName, qint64 fileSize
         emit confirmResult(true,path);
     if(serverMode == MultiThread)
     {
-        QMessageBox *recvDialog = new QMessageBox(QMessageBox::Information,"Receiving...","Receiveing: "+fileName,QMessageBox::NoButton,nullptr);
+        QMessageBox *recvDialog = new QMessageBox(QMessageBox::Information,tr("Receiving..."),"Receiveing: "+fileName,QMessageBox::NoButton,nullptr);
         recvDialog->setModal(false);
         recvDialog->setAttribute(Qt::WA_DeleteOnClose);
         connect(this,SIGNAL(closeDialog()),recvDialog,SLOT(close()));

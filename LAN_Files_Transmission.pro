@@ -32,7 +32,8 @@ SOURCES += \
         mainwindow.cpp \
         settings.cpp \
         tcpserver.cpp \
-        tcpserverthread.cpp
+        tcpserverthread.cpp \
+        theme.cpp
 
 HEADERS += \
         advancedmode_widget.h \
@@ -41,7 +42,8 @@ HEADERS += \
         mainwindow.h \
         settings.h \
         tcpserver.h \
-        tcpserverthread.h
+        tcpserverthread.h \
+        theme.h
 
 FORMS += \
         advancedmode_widget.ui \
@@ -52,3 +54,11 @@ FORMS += \
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+RESOURCES += \
+    icon.qrc \
+    translation.qrc
+
+RC_ICONS = icon/LFT.ico
+
+TRANSLATIONS = zh_hans.ts

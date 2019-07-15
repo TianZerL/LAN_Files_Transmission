@@ -57,6 +57,8 @@ private slots:
 
     void changedSetting();
 
+    void language();
+
 private:
     void getFileList(const QString &path);
 

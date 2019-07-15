@@ -2,7 +2,6 @@
 #include "ui_advancedmode_widget.h"
 #include <QNetworkConfigurationManager>
 #include <QMessageBox>
-#include <QDebug>
 #include <QRegExpValidator>
 
 advancedmode_widget::advancedmode_widget(QWidget *parent) :
@@ -45,6 +44,7 @@ advancedmode_widget::advancedmode_widget(QWidget *parent) :
     connect(tcpServer,SIGNAL(newConnection()),this,SLOT(creat_Connection()));   //连接请求处理
     connect(tcpServer,SIGNAL(acceptError(QAbstractSocket::SocketError)),this,SLOT(server_connection_Error()));
     connect(&config,SIGNAL(changeSetting()),this,SLOT(changedSetting()));
+    connect(&config,SIGNAL(changeLanguage()),this,SLOT(language()));
 
     ipCompleter = new IP_Completer(ui->ip_le);
     connect(this,SIGNAL(addIPToList(QString)),ipCompleter,SLOT(addIP(QString)));
@@ -62,9 +62,9 @@ advancedmode_widget::~advancedmode_widget()
 void advancedmode_widget::on_lantest_pb_clicked()
 {
     if(QNetworkConfigurationManager().isOnline())
-        QMessageBox::information(this,"LAN test","LAN is online");
+        QMessageBox::information(this,tr("LAN test"),tr("LAN is online"));
     else
-        QMessageBox::warning(this,"LAN test","LAN is offline");
+        QMessageBox::warning(this,tr("LAN test"),tr("LAN is offline"));
 }
 
 void advancedmode_widget::on_wantest_pb_clicked()
@@ -75,9 +75,9 @@ void advancedmode_widget::on_wantest_pb_clicked()
 void advancedmode_widget::lookedUp(QHostInfo hostInfo)
 {
     if(hostInfo.error() == QHostInfo::NoError)
-        QMessageBox::information(this,"LAN test","WAN is online");
+        QMessageBox::information(this,tr("LAN test"),tr("WAN is online"));
     else
-        QMessageBox::warning(this,"LAN test","WAN is offline");
+        QMessageBox::warning(this,tr("LAN test"),tr("WAN is offline"));
 }
 
 void advancedmode_widget::send_Head()
@@ -227,7 +227,7 @@ void advancedmode_widget::on_pick_pb_clicked()
 
 void advancedmode_widget::on_cancle_pb_client_clicked()
 {
-    if(QMessageBox::warning(this,"Waring","Are you sure to cancle?",QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::No)
+    if(QMessageBox::warning(this,tr("Waring"),tr("Are you sure to cancle?"),QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::No)
         return;
     tcpClient->disconnectFromHost();
     tosend_fileSize = 0;
@@ -273,4 +273,9 @@ void advancedmode_widget::server_connection_Error()
 void advancedmode_widget::changedSetting()
 {
     tcpServer->setPermissionMode(TcpServer::PermissionMode(config.permissionMode));
+}
+
+void advancedmode_widget::language()
+{
+    ui->retranslateUi(this);
 }

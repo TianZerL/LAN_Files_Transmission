@@ -62,6 +62,8 @@ private slots:
 
     void changedSetting();
 
+    void language();
+
 protected:
     void closeEvent(QCloseEvent *event);
 

@@ -1,0 +1,12 @@
+<RCC>
+    <qresource prefix="/">
+        <file>icon/LFT.ico</file>
+        <file>icon/settings.ico</file>
+        <file>icon/x.ico</file>
+        <file>icon/more.ico</file>
+        <file>icon/menu.ico</file>
+        <file>icon/info.ico</file>
+        <file>icon/server.ico</file>
+        <file>icon/folder-plus.ico</file>
+    </qresource>
+</RCC>

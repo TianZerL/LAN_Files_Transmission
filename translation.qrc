@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>zh_hans.qm</file>
+    </qresource>
+</RCC>

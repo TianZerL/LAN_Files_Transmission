@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include "config.h"
+#include <QTranslator>
 
 namespace Ui {
 class Settings;
@@ -26,6 +27,7 @@ private:
 
 signals:
     void settingChanged();
+    void langChanged();
 
 private slots:
     void on_pick_pb_server_clicked();
@@ -33,6 +35,8 @@ private slots:
     void on_apply_pb_clicked();
 
     void on_ok_pb_clicked();
+
+    void languageChanged(int index);
 
 private:
     Ui::Settings *ui;

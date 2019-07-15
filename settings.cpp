@@ -37,8 +37,14 @@ Settings::Settings(QWidget *parent) :
         ui->no_rb->setChecked(true);
         break;
     }
+    if(config.language == "en")
+        ui->language_cb->setCurrentIndex(0);
+    else if(config.language == "zh_hans")
+        ui->language_cb->setCurrentIndex(1);
 
     connect(this,SIGNAL(settingChanged()),&config,SLOT(settingChanged()));
+    connect(ui->language_cb,SIGNAL(currentIndexChanged(int)),this,SLOT(languageChanged(int)));
+    connect(this,SIGNAL(langChanged()),&config,SLOT(languageChanged()));
 }
 
 Settings::~Settings()
@@ -69,6 +75,16 @@ void Settings::apply()
         config.permissionMode=0;
     else if(ui->no_rb->isChecked())
         config.permissionMode=1;
+
+    switch(ui->language_cb->currentIndex())
+    {
+    case 0:
+        config.language = "en";
+        break;
+    case 1:
+        config.language = "zh_hans";
+        break;
+    }
     emit settingChanged();
 }
 
@@ -86,4 +102,22 @@ void Settings::on_ok_pb_clicked()
 {
     apply();
     close();
+}
+
+void Settings::languageChanged(int index)
+{
+    if(index == 1)
+    {
+        translator.load(":/zh_hans.qm");
+        qApp->installTranslator(&translator);
+        ui->retranslateUi(this);
+        emit langChanged();
+    }
+    else if(index == 0)
+    {
+        qApp->removeTranslator(&translator);
+        ui->retranslateUi(this);
+        emit langChanged();
+    }
+
 }

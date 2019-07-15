@@ -7,6 +7,7 @@
 #include <QJsonObject>
 #include <QJsonDocument>
 #include <QJsonParseError>
+#include <QTranslator>
 
 class Config : public QObject
 {
@@ -19,13 +20,16 @@ public:
 
 signals:
     void changeSetting();
+    void changeLanguage();
 public slots:
     void settingChanged();
+    void languageChanged();
 public:
     QString defaultRecvPath;
     QString defaultPort;
     qint64 diskCacheSize;
     int permissionMode;
+    QString language;
 
 private:
     QFile config;
@@ -35,5 +39,6 @@ private:
 };
 
 extern Config config;
+extern QTranslator translator;
 
 #endif // CONFIG_H
