@@ -55,6 +55,8 @@ private slots:
 
     void server_connection_Error();
 
+    void changedSetting();
+
 private:
     void getFileList(const QString &path);
 

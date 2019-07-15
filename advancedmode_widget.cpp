@@ -31,7 +31,7 @@ advancedmode_widget::advancedmode_widget(QWidget *parent) :
     ui->cancle_pb_client->setEnabled(false);
 
     tcpClient = new QTcpSocket(this);
-    tcpServer = new TcpServer(this, TcpServer::MultiThread);
+    tcpServer = new TcpServer(this, TcpServer::MultiThread, TcpServer::PermissionMode(config.permissionMode));
 
     ui->port_le->setText(config.defaultPort);
     ui->port_le_server->setText(config.defaultPort);
@@ -44,6 +44,7 @@ advancedmode_widget::advancedmode_widget(QWidget *parent) :
     connect(tcpServer,SIGNAL(error(QString)),this,SLOT(server_Error(QString)));
     connect(tcpServer,SIGNAL(newConnection()),this,SLOT(creat_Connection()));   //连接请求处理
     connect(tcpServer,SIGNAL(acceptError(QAbstractSocket::SocketError)),this,SLOT(server_connection_Error()));
+    connect(&config,SIGNAL(changeSetting()),this,SLOT(changedSetting()));
 
     ipCompleter = new IP_Completer(ui->ip_le);
     connect(this,SIGNAL(addIPToList(QString)),ipCompleter,SLOT(addIP(QString)));
@@ -156,7 +157,7 @@ void advancedmode_widget::start_send_Data()
         currFile=nullptr;
         tcpClient->waitForReadyRead();
     }
-    ui->process->reset();
+    ui->process->setValue(0);
     tcpClient->close();
     connect(tcpClient,SIGNAL(readyRead()),this,SLOT(confirm_Head()));
     if(!cancleFlag)
@@ -176,7 +177,7 @@ void advancedmode_widget::client_Error()
     if(tcpClient->isOpen())
         tcpClient->close();
     ui->send_pb->setEnabled(true);
-    ui->process->reset();
+    ui->process->setValue(0);
 }
 
 void advancedmode_widget::getFileList(const QString &path)
@@ -267,4 +268,9 @@ void advancedmode_widget::server_Error(QString errorString)
 void advancedmode_widget::server_connection_Error()
 {
     QMessageBox::warning(this,tr("Server"),tcpServer->errorString());
+}
+
+void advancedmode_widget::changedSetting()
+{
+    tcpServer->setPermissionMode(TcpServer::PermissionMode(config.permissionMode));
 }

@@ -30,6 +30,7 @@ SOURCES += \
         ip_completer.cpp \
         main.cpp \
         mainwindow.cpp \
+        settings.cpp \
         tcpserver.cpp \
         tcpserverthread.cpp
 
@@ -38,12 +39,14 @@ HEADERS += \
         config.h \
         ip_completer.h \
         mainwindow.h \
+        settings.h \
         tcpserver.h \
         tcpserverthread.h
 
 FORMS += \
         advancedmode_widget.ui \
-        mainwindow.ui
+        mainwindow.ui \
+        settings.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

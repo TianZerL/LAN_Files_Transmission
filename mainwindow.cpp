@@ -22,7 +22,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->cancle_pb_client->setEnabled(false);
     //初始化tcp服务端和客户端
     tcpClient = new QTcpSocket(this);
-    tcpServer = new TcpServer(this);
+    tcpServer = new TcpServer(this,TcpServer::SingleThread,TcpServer::PermissionMode(config.permissionMode));
     //链接信号与槽
     connect(tcpClient,SIGNAL(connected()),this,SLOT(send_Head()));
     connect(tcpClient,SIGNAL(readyRead()),this,SLOT(confirm_Head()));
@@ -31,6 +31,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(tcpServer,SIGNAL(ProgressBarValue(int)),this,SLOT(setProgressBar(int)));
     connect(tcpServer,SIGNAL(newConnection()),this,SLOT(creat_Connection()));   //连接请求处理
     connect(tcpServer,SIGNAL(acceptError(QAbstractSocket::SocketError)),this,SLOT(server_connection_Error()));
+    connect(&config,SIGNAL(changeSetting()),this,SLOT(changedSetting()));
 
     ui->port_le->setText(config.defaultPort);
     ui->port_le_server->setText(config.defaultPort);
@@ -68,13 +69,13 @@ void MainWindow::client_Error()
 void MainWindow::server_Error(QString errorString)
 {
     QMessageBox::warning(this,tr("Server"),errorString);
-    ui->process_server->reset();
+    ui->process_server->setValue(0);
 }
 
 void MainWindow::server_connection_Error()
 {
     QMessageBox::warning(this,tr("Server"),tcpServer->errorString());
-    ui->process_server->reset();
+    ui->process_server->setValue(0);
 }
 
 void MainWindow::send_Head()
@@ -122,7 +123,7 @@ void MainWindow::start_send_Data()
     cancleFlag = false;
     qint64 sizeOfSend = 0;
     sended_fileSize = 0;
-    ui->process->reset();
+    ui->process->setValue(0);
     ui->cancle_pb_client->setEnabled(true);
     while(tosend_fileSize>0)
     {
@@ -135,7 +136,7 @@ void MainWindow::start_send_Data()
         tcpClient->waitForBytesWritten();
         QApplication::processEvents();
     }
-    ui->process->reset();//重置进度条
+    ui->process->setValue(0);//重置进度条
     srcFile->close();   //关闭源文件
     delete srcFile; //delete防止内存泄漏
     srcFile=nullptr;
@@ -232,7 +233,18 @@ void MainWindow::on_cancle_pb_client_clicked()
 
 void MainWindow::on_actionAdvance_triggered()
 {
-    advancedmode_widget *advanceWidet;
-    advanceWidet = new advancedmode_widget;
-    advanceWidet->show();
+    advancedmode_widget *advanceWidget;
+    advanceWidget = new advancedmode_widget;
+    advanceWidget->show();
+}
+
+void MainWindow::on_actionSetting_triggered()
+{
+    Settings *settingWidget = new Settings;
+    settingWidget->show();
+}
+
+void MainWindow::changedSetting()
+{
+    tcpServer->setPermissionMode(TcpServer::PermissionMode(config.permissionMode));
 }

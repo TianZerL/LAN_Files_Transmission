@@ -13,18 +13,19 @@ class Config : public QObject
     Q_OBJECT
 public:
     explicit Config(QObject *parent = nullptr);
-
+    ~Config();
     bool load();
     bool save();
 
 signals:
-    void settingChanged();
+    void changeSetting();
 public slots:
-
+    void settingChanged();
 public:
     QString defaultRecvPath;
     QString defaultPort;
     qint64 diskCacheSize;
+    int permissionMode;
 
 private:
     QFile config;
