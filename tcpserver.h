@@ -30,7 +30,6 @@ signals:
     void confirmResult(bool,QDir);
     void ProgressBarValue(int);
     void error(QString);
-    void cancle();
 
 private slots:
     void confirmForReadData(QString IP,QString fileName,qint64 fileSize);
@@ -45,7 +44,7 @@ protected:
 
 private:
     QDir path;
-    bool threadFlag;
+    bool threadFlag,cancleFlag;
     ServerMode serverMode;
     PermissionMode permissionMode;
 };

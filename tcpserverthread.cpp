@@ -169,4 +169,5 @@ void TcpServerThread::cancled()
 {
     remaining_fileSize = 0;
     i = fileCount;
+    emit cancle();
 }

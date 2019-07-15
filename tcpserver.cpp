@@ -7,7 +7,7 @@ TcpServer::TcpServer(QObject *parent, ServerMode _serverMode, PermissionMode _pe
     QTcpServer (parent), serverMode(_serverMode), permissionMode(_permissionMode)
 {
     qRegisterMetaType<QDir>("QDir");
-    threadFlag = false;
+    cancleFlag = threadFlag = false;
 }
 
 void TcpServer::confirmForReadData(QString IP, QString fileName, qint64 fileSize)
@@ -30,7 +30,8 @@ void TcpServer::transferError(QString errorString)
 
 void TcpServer::finished()
 {
-    QMessageBox::information(nullptr,tr("Server"),tr("Receiving file finished!\nPath:")+path.path());
+    if(!cancleFlag)
+        QMessageBox::information(nullptr,tr("Server"),tr("Receiving file finished!\nPath:")+path.path());
 }
 
 void TcpServer::resetThreadFlag()
@@ -40,7 +41,8 @@ void TcpServer::resetThreadFlag()
 
 void TcpServer::cancleReceiver()
 {
-    emit cancle();
+    cancleFlag = true;
+    QMessageBox::information(nullptr,tr("Server"),tr("cancled"));
 }
 
 void TcpServer::incomingConnection(qintptr socketDescriptor)
@@ -50,6 +52,7 @@ void TcpServer::incomingConnection(qintptr socketDescriptor)
         nextPendingConnection()->close();
         return;
     }
+    cancleFlag = false;
     TcpServerThread *thread = new TcpServerThread(socketDescriptor);    //新线程
     QThread *threadContainer = new QThread(this);   //线程容器
     thread->moveToThread(threadContainer);  //装入容器
@@ -63,6 +66,8 @@ void TcpServer::incomingConnection(qintptr socketDescriptor)
     connect(thread,SIGNAL(refuseConnection()),threadContainer,SLOT(quit()));    //确保推出线程
     connect(thread,SIGNAL(readFinished()),threadContainer,SLOT(quit()));    //确保推出线程
     connect(thread,SIGNAL(readFinished()),this,SLOT(finished()));   //读取完成后进行提示
+    connect(thread,SIGNAL(cancle()),threadContainer,SLOT(quit()));    //确保推出线程
+    connect(thread,SIGNAL(cancle()),this,SLOT(cancleReceiver()));
     connect(threadContainer,SIGNAL(started()),thread,SLOT(inil())); //调用新线程
     threadContainer->start();   //开启新线程
     emit newConnection();   //发送新连接信号

@@ -76,6 +76,7 @@ private:
     QByteArray src_fileCache;
     QString src_fileName;
     qint64 src_fileSize,sended_fileSize,tosend_fileSize;
+    bool cancleFlag;
 
 };
 

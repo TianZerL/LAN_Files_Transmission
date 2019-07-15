@@ -13,6 +13,7 @@ advancedmode_widget::advancedmode_widget(QWidget *parent) :
     setAttribute(Qt::WA_DeleteOnClose);
 
     currFile = nullptr;
+    cancleFlag = false;
 
     ui->ipaddress_le->setReadOnly(true);
     ui->ipaddress_le->setText(QHostInfo::fromName(QHostInfo::localHostName()).addresses()[0].toString());
@@ -105,6 +106,7 @@ void advancedmode_widget::confirm_Head()
 void advancedmode_widget::start_send_Data()
 {
     disconnect(tcpClient,SIGNAL(readyRead()),this,SLOT(confirm_Head()));
+    cancleFlag = false;
     qint64 sizeOfSend = 0;
     sended_fileSize = 0;
     for (i = 0; i < srcFileList.size(); i++)
@@ -129,7 +131,6 @@ void advancedmode_widget::start_send_Data()
         }
         sizeOfSend = 0;
         tosend_fileSize = currFile->size();
-        ui->process->reset();
         ui->cancle_pb_client->setEnabled(true);
         tcpClient->waitForReadyRead();
         while(tosend_fileSize > 0)
@@ -151,13 +152,19 @@ void advancedmode_widget::start_send_Data()
     ui->process->reset();
     tcpClient->close();
     connect(tcpClient,SIGNAL(readyRead()),this,SLOT(confirm_Head()));
-    QMessageBox::information(this,tr("Client"),tr("Successful!"));
+    if(!cancleFlag)
+        QMessageBox::information(this,tr("Client"),tr("Successful!"));
+    else
+        QMessageBox::information(this,tr("Client"),tr("cancled!"));
     ui->send_pb->setEnabled(true);
     ui->cancle_pb_client->setEnabled(false);
 }
 
 void advancedmode_widget::client_Error()
 {
+    tosend_fileSize = 0;
+    i = srcFileList.size();
+    cancleFlag = true;
     QMessageBox::warning(this,tr("Client"),tcpClient->errorString());
     if(tcpClient->isOpen())
         tcpClient->close();

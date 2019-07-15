@@ -66,6 +66,7 @@ private:
     qint64 src_pathSize,tosend_pathSize;
     qint64 src_fileSize,sended_fileSize,tosend_fileSize;
     int i;
+    bool cancleFlag;
 };
 
 #endif // ADVANCEDMODE_WIDGET_H

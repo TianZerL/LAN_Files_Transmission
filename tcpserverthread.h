@@ -20,6 +20,7 @@ signals:
     void refuseConnection();
     void needConfirm(QString,QString,qint64);
     void progress(int);
+    void cancle();
 public slots:
     void inil();
     void readyConfirm();

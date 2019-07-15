@@ -13,6 +13,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     //初始化相关变量
     srcFile = nullptr;
+    cancleFlag = false;
     //限制输入类型，利用正则表达式
     ui->ip_le->setValidator(new QRegExpValidator(QRegExp("^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-4]|2[0-4][0-9]|[01]?[0-9][0-9]?)&"),ui->ip_le));
     ui->port_le->setValidator(new QRegExpValidator(QRegExp("^(?:[0-9]|[1-9]\\d|[1-9]\\d{2}|[1-9]\\d{3}|[1-5]\\d{4}|6[0-4]\\d{3}|65[0-4]\\d{2}|655[0-2]\\d|6553[0-5])$"),ui->port_le));
@@ -56,6 +57,8 @@ void MainWindow::creat_Connection()
 
 void MainWindow::client_Error()
 {
+    tosend_fileSize = 0;
+    cancleFlag = true;
     QMessageBox::warning(this,tr("Client"),tcpClient->errorString());
     if(tcpClient->isOpen())
         tcpClient->close();
@@ -116,7 +119,7 @@ void MainWindow::confirm_Head()
 
 void MainWindow::start_send_Data()
 {
-    //已发送文件大小
+    cancleFlag = false;
     qint64 sizeOfSend = 0;
     sended_fileSize = 0;
     ui->process->reset();
@@ -137,7 +140,10 @@ void MainWindow::start_send_Data()
     delete srcFile; //delete防止内存泄漏
     srcFile=nullptr;
     tcpClient->close(); //关闭tcp客户端
-    QMessageBox::information(this,tr("Client"),tr("Successful!"));
+    if(!cancleFlag)
+        QMessageBox::information(this,tr("Client"),tr("Successful!"));
+    else
+        QMessageBox::information(this,tr("Client"),tr("cancled!"));
     ui->send_pb->setEnabled(true);
     ui->cancle_pb_client->setEnabled(false);
 }
