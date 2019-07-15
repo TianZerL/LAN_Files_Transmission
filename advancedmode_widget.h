@@ -45,6 +45,16 @@ private slots:
 
     void on_cancle_pb_client_clicked();
 
+    void on_listen_pb_clicked();
+
+    void on_pick_pb_server_clicked();
+
+    void creat_Connection();
+
+    void server_Error(QString errorString);
+
+    void server_connection_Error();
+
 private:
     void getFileList(const QString &path);
 
@@ -62,7 +72,6 @@ private:
     QDir srcPath;
     QFile *currFile;
     QByteArray src_fileCache;
-    QString src_fileName;
     qint64 src_pathSize,tosend_pathSize;
     qint64 src_fileSize,sended_fileSize,tosend_fileSize;
     int i;

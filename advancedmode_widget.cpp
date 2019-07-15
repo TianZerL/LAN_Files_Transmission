@@ -27,7 +27,7 @@ advancedmode_widget::advancedmode_widget(QWidget *parent) :
     ui->cancle_pb_client->setEnabled(false);
 
     tcpClient = new QTcpSocket(this);
-    tcpServer = new TcpServer(this);
+    tcpServer = new TcpServer(this, TcpServer::MultiThread);
 
     ui->port_le->setText(config.defaultPort);
     ui->port_le_server->setText(config.defaultPort);
@@ -37,6 +37,10 @@ advancedmode_widget::advancedmode_widget(QWidget *parent) :
     connect(tcpClient,SIGNAL(connected()),this,SLOT(send_Head()));
     connect(tcpClient,SIGNAL(readyRead()),this,SLOT(confirm_Head()));
     connect(tcpClient,SIGNAL(error(QAbstractSocket::SocketError)),this,SLOT(client_Error()));
+    connect(tcpServer,SIGNAL(error(QString)),this,SLOT(server_Error(QString)));
+    //connect(tcpServer,SIGNAL(ProgressBarValue(int)),this,SLOT(setProgressBar(int)));
+    connect(tcpServer,SIGNAL(newConnection()),this,SLOT(creat_Connection()));   //连接请求处理
+    connect(tcpServer,SIGNAL(acceptError(QAbstractSocket::SocketError)),this,SLOT(server_connection_Error()));
 
     ipCompleter = new IP_Completer(ui->ip_le);
     connect(this,SIGNAL(addIPToList(QString)),ipCompleter,SLOT(addIP(QString)));
@@ -224,4 +228,40 @@ void advancedmode_widget::on_cancle_pb_client_clicked()
     tcpClient->disconnectFromHost();
     tosend_fileSize = 0;
     i = srcFileList.size();
+}
+
+void advancedmode_widget::on_listen_pb_clicked()
+{
+    if(ui->port_le_server->text().toInt()<1025)
+    {
+        QMessageBox::warning(this,tr("Server"),tr("Faild to listen port"));
+        return;
+    }
+    if(!tcpServer->listen(QHostAddress::Any,ui->port_le_server->text().toUShort())) //开始监听
+    {
+        QMessageBox::warning(this,tr("Server"),tr("Faild to listen port"));
+        return;
+    }
+    ui->listen_pb->setEnabled(false);   //设置listen按钮不可用
+    ui->cancle_pb->setEnabled(true);    //设置cancle按钮可用
+}
+
+void advancedmode_widget::on_pick_pb_server_clicked()
+{
+    ui->path_le->setText(QFileDialog::getExistingDirectory());
+}
+
+void advancedmode_widget::creat_Connection()
+{
+    tcpServer->setPath(ui->path_le_server->text());
+}
+
+void advancedmode_widget::server_Error(QString errorString)
+{
+    QMessageBox::warning(this,tr("Server"),errorString);
+}
+
+void advancedmode_widget::server_connection_Error()
+{
+    QMessageBox::warning(this,tr("Server"),tcpServer->errorString());
 }
