@@ -1,6 +1,7 @@
 ﻿#include "advancedmode_widget.h"
 #include "ui_advancedmode_widget.h"
 #include <QNetworkConfigurationManager>
+#include <QNetworkInterface>
 #include <QMessageBox>
 #include <QRegExpValidator>
 
@@ -16,7 +17,9 @@ advancedmode_widget::advancedmode_widget(QWidget *parent) :
 
     ui->ipaddress_le->setReadOnly(true);
 #ifdef Q_OS_WIN32
-    ui->ipaddress_le->setText(QHostInfo::fromName(QHostInfo::localHostName()).addresses().at(1).toString());
+    for(const QHostAddress& hostAddress:QNetworkInterface::allAddresses())
+        if (hostAddress != QHostAddress::LocalHost && hostAddress.toIPv4Address())
+            ui->ipaddress_le->setText(hostAddress.toString());
 #else
     ui->ipaddress_le->setText(QHostInfo::fromName(QHostInfo::localHostName()).addresses().at(0).toString());
 #endif
@@ -92,7 +95,7 @@ void advancedmode_widget::send_Head()
     //取得待发送文件大小
     tosend_pathSize = src_pathSize;
     //设置输出流文件版本，初始化文件头（文件头，文件大小）
-    out.setVersion(QDataStream::Qt_5_13);
+    out.setVersion(QDataStream::Qt_5_12);
     out<<QString("##dir##")<<srcPath.dirName()<<src_pathSize<<srcFileList.length();
     //发送文件头数据
     tcpClient->write(src_fileCache);
@@ -123,7 +126,7 @@ void advancedmode_widget::start_send_Data()
         qint64 _fileSize = srcFileList.at(i).size();
 
         QDataStream out(&src_fileCache,QIODevice::WriteOnly);
-        out.setVersion(QDataStream::Qt_5_13);
+        out.setVersion(QDataStream::Qt_5_12);
         out << _fileName << _filePath << _fileSize;
         tcpClient->write(src_fileCache);
 
